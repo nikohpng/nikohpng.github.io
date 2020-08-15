@@ -3,11 +3,11 @@
   <title>hpng</title>
   
   
-  <link href="https://nikohpng.github.io/atom.xml" rel="self"/>
+  <link href="http://nikohpng.github.io/atom.xml" rel="self"/>
   
-  <link href="https://nikohpng.github.io/"/>
+  <link href="http://nikohpng.github.io/"/>
   <updated>2020-08-15T01:47:29.374Z</updated>
-  <id>https://nikohpng.github.io/</id>
+  <id>http://nikohpng.github.io/</id>
   
   <author>
     <name>hpng</name>
@@ -18,8 +18,8 @@
   
   <entry>
     <title>Hello World</title>
-    <link href="https://nikohpng.github.io/2020/08/15/hello-world/"/>
-    <id>https://nikohpng.github.io/2020/08/15/hello-world/</id>
+    <link href="http://nikohpng.github.io/2020/08/15/hello-world/"/>
+    <id>http://nikohpng.github.io/2020/08/15/hello-world/</id>
     <published>2020-08-15T01:47:29.374Z</published>
     <updated>2020-08-15T01:47:29.374Z</updated>
     
