@@ -11,7 +11,21 @@
   <url>
     <loc>http://nikohpng.github.io/2020/08/15/hello-world/</loc>
     
-    <lastmod>2020-08-15</lastmod>
+    <lastmod>2020-08-16</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://nikohpng.github.io/tags/index.html</loc>
+    
+    <lastmod>2020-08-16</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://nikohpng.github.io/categories/index.html</loc>
+    
+    <lastmod>2020-08-16</lastmod>
     
   </url>
   
@@ -24,6 +38,34 @@
   </url>
 
   
+  <url>
+    <loc>http://nikohpng.github.io/tags/demo/</loc>
+    <lastmod>2020-08-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://nikohpng.github.io/tags/hexo/</loc>
+    <lastmod>2020-08-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
 
+  
+  <url>
+    <loc>http://nikohpng.github.io/categories/demo/</loc>
+    <lastmod>2020-08-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://nikohpng.github.io/categories/hexo/</loc>
+    <lastmod>2020-08-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
   
 </urlset>
