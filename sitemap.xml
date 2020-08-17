@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://nikohpng.github.io/2020/08/17/springcloud%E4%B8%8Espringboot%E7%9A%84%E6%8A%80%E6%9C%AF%E9%80%89%E5%9E%8B/</loc>
+    
+    <lastmod>2020-08-17</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://nikohpng.github.io/2020/08/16/hexo%E7%9A%84%E6%8F%90%E4%BA%A4%E5%9F%9F%E5%90%8D%E9%87%8D%E6%96%B0%E7%BB%91%E5%AE%9A/</loc>
     
     <lastmod>2020-08-16</lastmod>
@@ -32,7 +39,7 @@
 
   <url>
     <loc>http://nikohpng.github.io/</loc>
-    <lastmod>2020-08-16</lastmod>
+    <lastmod>2020-08-17</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -40,14 +47,21 @@
   
   <url>
     <loc>http://nikohpng.github.io/tags/demo/</loc>
-    <lastmod>2020-08-16</lastmod>
+    <lastmod>2020-08-17</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/hexo/</loc>
-    <lastmod>2020-08-16</lastmod>
+    <lastmod>2020-08-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://nikohpng.github.io/tags/springcloud/</loc>
+    <lastmod>2020-08-17</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
@@ -56,14 +70,21 @@
   
   <url>
     <loc>http://nikohpng.github.io/categories/demo/</loc>
-    <lastmod>2020-08-16</lastmod>
+    <lastmod>2020-08-17</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/categories/hexo/</loc>
-    <lastmod>2020-08-16</lastmod>
+    <lastmod>2020-08-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://nikohpng.github.io/categories/springcloud/</loc>
+    <lastmod>2020-08-17</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
