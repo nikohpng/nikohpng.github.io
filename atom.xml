@@ -6,7 +6,7 @@
   <link href="http://nikohpng.github.io/atom.xml" rel="self"/>
   
   <link href="http://nikohpng.github.io/"/>
-  <updated>2020-09-01T14:06:33.133Z</updated>
+  <updated>2020-09-01T14:09:47.514Z</updated>
   <id>http://nikohpng.github.io/</id>
   
   <author>
@@ -21,7 +21,7 @@
     <link href="http://nikohpng.github.io/2020/09/01/springboot%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AD%A6%E4%B9%A0-%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E9%A1%B9%E7%9B%AE/"/>
     <id>http://nikohpng.github.io/2020/09/01/springboot%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AD%A6%E4%B9%A0-%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E9%A1%B9%E7%9B%AE/</id>
     <published>2020-09-01T13:53:50.000Z</published>
-    <updated>2020-09-01T14:06:33.133Z</updated>
+    <updated>2020-09-01T14:09:47.514Z</updated>
     
     <content type="html"><![CDATA[<p>阅读官方文档，官方文档中对于springboot的简单项目搭建的基本解释</p><h2 id="SpringBoot中spring-parent的作用"><a href="#SpringBoot中spring-parent的作用" class="headerlink" title="SpringBoot中spring-parent的作用"></a>SpringBoot中spring-parent的作用</h2><ul><li><p>根据文档的翻译可以简单概括为spring-boot-starter-parent不提供依赖关系。它主要提供maven的一些默认值，一个依赖管理器用于你添加依赖的时候不需要在maven中加version。<a href="https://docs.spring.io/spring-boot/docs/current/reference/html/getting-started.html#getting-started-first-application-dependencies">原文链接</a></p></li><li><p><span style="color:red;">注意：其中不提供依赖的意思是，它不提供如start-web这一类的web启动依赖。即spring-boot-starter-parent不是启动程序，它只是提供了管理工具与预设置值</span></p></li></ul>]]></content>
     
