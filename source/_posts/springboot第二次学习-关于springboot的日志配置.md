@@ -3,7 +3,7 @@ title: Spring Boot第二次学习-关于Spring Boot的日志配置
 date: 2020-09-06 09:56:25
 cover: /images/logback.jpg 
 tags: log
-category: Spring Boot
+category: springboot
 
 ---
 

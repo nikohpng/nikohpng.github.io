@@ -3,7 +3,7 @@ title: springboot源代码解析（1）
 date: 2020-10-31 15:40:36
 cover: /images/springboot.jpg
 tags: spring boot源码
-category: spring boot
+category: springboot
 ---
 
 主要对spring boot的源代码进行解析，解析的内容包括启动顺序、代码的作用和设计代码的设计模式。第一次内容目标需要解决的问题关于springboot的配置的加载！
