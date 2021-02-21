@@ -100,9 +100,21 @@ ignore:
 ## Themes: https://hexo.io/themes/
 theme: butterfly
 
+#设置百度主动推送
+baidu_url_submit:
+  count: 200
+  host: www.hepng.cool
+  token: mhAzpfABVfMDQhLJ
+  path: baidu_urls.txt
+
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
-  type: git
-  repo: git@github.com:nikohpng/nikohpng.github.io.git
-  branch: master
+ - type: git
+   repo: 
+     github: git@github.com:nikohpng/nikohpng.github.io.git
+   branch: master
+  
+ - type: baidu_url_submitter
+  
+
