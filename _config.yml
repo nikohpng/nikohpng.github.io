@@ -111,10 +111,20 @@ baidu_url_submit:
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
  - type: git
-   repo: 
+   repo:
      github: git@github.com:nikohpng/nikohpng.github.io.git
    branch: master
-  
+
  - type: baidu_url_submitter
-  
+
+# 搜索
+search:
+  path: search.xml
+  field: post
+  format: html
+  limit: 10000
+
+aplayer:
+  meting: true
+
 
