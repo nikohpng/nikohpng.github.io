@@ -2,7 +2,7 @@
 title: freeswitch中开发列出所有模块命令
 date: 2021-05-25 20:48:10
 tag: command
-category: freeswitch
+category: FreeSWTICH
 ---
 
 本文章主要是对本人在fs中开发一个命令的时候的一些随想。主要记录一些遇到的问题与一些简答的想法，不具有体系性，望与共勉！

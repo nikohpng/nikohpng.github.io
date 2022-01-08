@@ -1,11 +1,14 @@
 ---
-title: freeswitch在vs中添加一个事件测试模块
+title: FreeSWTICH在vs中添加一个测试模块
 date: 2021-06-24 20:39:30
 tags: event
-category: freeswitch
+category: FreeSWTICH
 ---
 
 本文主要记录如何在 vs2017 中添加一个模块，并编译运行。然后，测试 event 内容
+
+## 环境
+    + vs2017
 
 ## 添加一个模块
 
