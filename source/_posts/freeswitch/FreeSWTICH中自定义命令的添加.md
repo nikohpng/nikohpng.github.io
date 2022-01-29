@@ -9,7 +9,12 @@ category: FreeSWTICH
 本文需要在[FreeSWTICH在vs中添加一个测试模块](./FreeSWTICH在vs中添加一个测试模块)作为基础知识。
 
 ## 环境
-    + vs2017
+
+| 环境名 | 版本     |
+|----   |----     |
+| WIN   | WIN10   |
+| FS    | 1.10.0  |
+| VS    | vs2017  |
 
 ## FreeSWITCH 模块基础知识
 
