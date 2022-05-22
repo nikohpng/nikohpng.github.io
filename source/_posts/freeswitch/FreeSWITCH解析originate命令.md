@@ -17,11 +17,11 @@ category: FreeSWTICH
 | FS    | 1.10.0  |
 | VS    | vs2017  |
 
-## `mod_command`
+## `originate_function`
 
-这个模块，集成 FreeSWITCH 大部分的命令，而 originate 命令就是其中的一个命令。
+mod_commands 这个模块，集成 FreeSWITCH 大部分的命令，而 originate 命令就是其中的一个命令。位于 mod_commands.c 中，
 
-其中代码如下
+其中代码如下 ：
 
 ```c
     #define ORIGINATE_SYNTAX                                                                                               \
@@ -129,8 +129,8 @@ category: FreeSWTICH
     ```c
         aleg = argv[i++];       // aleg 就是呼叫 url。例如：sofia/internal/1001@192.168.1.110
         exten = argv[i++];      // exten 是 session 转移的参数或者其它命令配置。
-                                //  其中 session 转移是修改呼叫方的 caller_number
-                                //  至于其它命令可以参考 &hold()
+                                //      其中 session 转移是修改呼叫方的 caller_number
+                                //      至于其它命令可以参考 &hold()
         dp = argv[i++];         // 呼叫形式: 对应与 mod_dialplan_xml、mod_dialplan_directory、mod_dialplan_asterisk
         context = argv[i++];    // context 一般对应 config/dialplan 中的 default 或 public
         cid_name = argv[i++];   // 呼叫方显示到被叫方的名字
@@ -138,3 +138,48 @@ category: FreeSWTICH
     ```
 + 根据命令参数发发起呼叫：这里的主要执行是 `switch_ivr_originate()` 函数，通过此函数我们获取到一个通话的 session。
 下面我将详细讲解此函数中执行内容。
+
+## `switch_ivr_originate`
+
+此函数位于 switch_ivr_originate.c 中，此函数的实现内容为发起呼叫的功能，这其中的代码非常复杂。
+
+这里分成各个阶段分别分析其中的内容。
+
+### 传入参数
+
+以下是此函数的传入参数的解释，主要位于 switch_ivr.h 中：
+
+```c
+/*!
+  \brief Make an outgoing call
+  \param session originating session
+  \param bleg B leg session
+  \param cause a pointer to hold call cause
+  \param bridgeto the desired remote callstring
+  \param timelimit_sec timeout in seconds for outgoing call
+  \param table optional state handler table to install on the channel
+  \param cid_name_override override the caller id name
+  \param cid_num_override override the caller id number
+  \param caller_profile_override override the entire calling caller profile
+  \param ovars variables to be set on the outgoing channel
+  \param flags flags to pass
+  \return SWITCH_STATUS_SUCCESS if bleg is a running session.
+  \note bleg will be read locked which must be unlocked with switch_core_session_rwunlock() before losing scope
+*/
+/*!
+  \brief 往外发起呼叫
+  \param 正在发起会话的会话，可以简单理解为 a-leg，如果没有 a-leg 传入 NULL 即可
+  \param 传入接收 b-leg 的 session 指针
+  \param 传入接收呼叫结果的指针
+  \param 想要呼叫的远端设备的链接
+  \param 向外呼叫超时时间
+  \param table optional state handler table to install on the channel
+  \param 覆盖呼叫者的名字
+  \param 覆盖呼叫者的号码
+  \param 覆盖呼叫者的整个配置内容
+  \param 设置在外呼通道上的变量
+  \param flags flags to pass
+  \retur 如果 b-leg 建立成功会返回 SWITCH_STATUS_SUCCESS
+  \note bleg will be read locked which must be unlocked with switch_core_session_rwunlock() before losing scope
+*/
+```
