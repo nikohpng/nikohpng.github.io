@@ -103,7 +103,7 @@ theme: butterfly
 #设置百度主动推送
 baidu_url_submit:
   count: 200
-  host: www.hepng.cool
+  host: www.hepngblog.top
   token: mhAzpfABVfMDQhLJ
   path: baidu_urls.txt
 
