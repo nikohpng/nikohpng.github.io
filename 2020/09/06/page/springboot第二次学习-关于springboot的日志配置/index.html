@@ -1,0 +1,414 @@
+<!DOCTYPE html><html lang="zh-Hans" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Spring Boot第二次学习-关于Spring Boot的日志配置 | hpng</title><meta name="description" content="阅读官方文档，明确Spring Boot采用的日志系统形式与共存关系，Spring Boot日志的高级配置，Spring Boot日志文件系统的依赖关系，日志接口与日志实现对Spring Boot日志输出的影响简谈，lombok与Spring Boot的结合使用 一、Spring Boot采用日志系统形式与共存关系 Spring Boot uses Commons Logging for all"><meta name="keywords" content="log"><meta name="author" content="hpng"><meta name="copyright" content="hpng"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://nikohpng.github.io/2020/09/06/page/springboot%E7%AC%AC%E4%BA%8C%E6%AC%A1%E5%AD%A6%E4%B9%A0-%E5%85%B3%E4%BA%8Espringboot%E7%9A%84%E6%97%A5%E5%BF%97%E9%85%8D%E7%BD%AE/"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//fonts.googleapis.com" crossorigin="crossorigin"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="preconnect" href="//zz.bdstatic.com"/><meta property="og:type" content="article"><meta property="og:title" content="Spring Boot第二次学习-关于Spring Boot的日志配置"><meta property="og:url" content="http://nikohpng.github.io/2020/09/06/page/springboot%E7%AC%AC%E4%BA%8C%E6%AC%A1%E5%AD%A6%E4%B9%A0-%E5%85%B3%E4%BA%8Espringboot%E7%9A%84%E6%97%A5%E5%BF%97%E9%85%8D%E7%BD%AE/"><meta property="og:site_name" content="hpng"><meta property="og:description" content="阅读官方文档，明确Spring Boot采用的日志系统形式与共存关系，Spring Boot日志的高级配置，Spring Boot日志文件系统的依赖关系，日志接口与日志实现对Spring Boot日志输出的影响简谈，lombok与Spring Boot的结合使用 一、Spring Boot采用日志系统形式与共存关系 Spring Boot uses Commons Logging for all"><meta property="og:image" content="http://nikohpng.github.io/images/logback.jpg"><meta property="article:published_time" content="2020-09-06T01:56:25.000Z"><meta property="article:modified_time" content="2020-11-07T10:17:13.805Z"><meta name="twitter:card" content="summary"><script>var activateDarkMode = function () {
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#000')
+  }
+}
+var activateLightMode = function () {
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#fff')
+  }
+}
+
+var getCookies = function (name) {
+  const value = `; ${document.cookie}`
+  const parts = value.split(`; ${name}=`)
+  if (parts.length === 2) return parts.pop().split(';').shift()
+}
+
+var autoChangeMode = 'false'
+var t = getCookies('theme')
+if (autoChangeMode === '1') {
+  var isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+  var isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+  var isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined) {
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport) {
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour <= 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+    }
+    window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+      if (Cookies.get('theme') === undefined) {
+        e.matches ? activateDarkMode() : activateLightMode()
+      }
+    })
+  } else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else if (autoChangeMode === '2') {
+  now = new Date()
+  hour = now.getHours()
+  isNight = hour <= 6 || hour >= 18
+  if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else {
+  if (t === 'dark') activateDarkMode()
+  else if (t === 'light') activateLightMode()
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web&amp;display=swap"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  hexoversion: '5.0.2',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime_unit: '天',
+  runtime: false,
+  copyright: undefined,
+  ClickShowText: undefined,
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: undefined,
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  baiduPush: true,
+  highlightCopy: true,
+  highlightLang: true,
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isanchor: false    
+}</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isSidebar: true,
+  postUpdate: '2020-11-07 18:17:13'
+}</script><noscript><style>
+#nav {
+  opacity: 1
+}
+.justified-gallery img {
+  opacity: 1
+}
+</style></noscript><meta name="generator" content="Hexo 5.0.2"><link rel="alternate" href="/atom.xml" title="hpng" type="application/atom+xml">
+</head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" data-lazy-src="/img/100.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">42</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">38</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">17</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 娱乐</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div></div></div></div><div id="body-wrap"><div id="sidebar"><i class="fas fa-arrow-right on" id="toggle-sidebar"></i><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81Spring-Boot%E9%87%87%E7%94%A8%E6%97%A5%E5%BF%97%E7%B3%BB%E7%BB%9F%E5%BD%A2%E5%BC%8F%E4%B8%8E%E5%85%B1%E5%AD%98%E5%85%B3%E7%B3%BB"><span class="toc-number">1.</span> <span class="toc-text">一、Spring Boot采用日志系统形式与共存关系</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81Spring-Boot%E6%97%A5%E5%BF%97%E7%9A%84%E9%AB%98%E7%BA%A7%E9%85%8D%E7%BD%AE"><span class="toc-number">2.</span> <span class="toc-text">二、Spring Boot日志的高级配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1%E3%80%81application-yaml%E9%85%8D%E7%BD%AE%E6%96%B9%E5%BC%8F"><span class="toc-number">2.1.</span> <span class="toc-text">2.1、application.yaml配置方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2%E3%80%81%E6%97%A5%E5%BF%97%E7%9A%84xml%E9%85%8D%E7%BD%AE%E6%96%B9%E5%BC%8F"><span class="toc-number">2.2.</span> <span class="toc-text">2.2、日志的xml配置方式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#2-2-1%E3%80%81Spring-Boot%E5%8A%A0%E8%BD%BDxml"><span class="toc-number">2.2.1.</span> <span class="toc-text">2.2.1、Spring Boot加载xml</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-2-2%E3%80%81Spring-Boot%E4%B8%AD%E9%85%8D%E7%BD%AElogback-spring-xml"><span class="toc-number">2.2.2.</span> <span class="toc-text">2.2.2、Spring Boot中配置logback-spring.xml</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-2-3%E3%80%81Spring-Boot%E4%B8%AD%E9%85%8D%E7%BD%AElog4j2-spring-xml"><span class="toc-number">2.2.3.</span> <span class="toc-text">2.2.3、Spring Boot中配置log4j2-spring.xml</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-2-4%E3%80%81%E5%85%B3%E4%BA%8Elog4j%E7%9A%84%E7%89%B9%E6%AE%8A%E8%AF%B4%E6%98%8E"><span class="toc-number">2.2.4.</span> <span class="toc-text">2.2.4、关于log4j的特殊说明</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81Spring-Boot%E6%97%A5%E5%BF%97%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E4%BE%9D%E8%B5%96%E5%85%B3%E7%B3%BB"><span class="toc-number">3.</span> <span class="toc-text">三、Spring Boot日志文件系统的依赖关系</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%97%A5%E5%BF%97%E6%8E%A5%E5%8F%A3%E4%B8%8E%E6%97%A5%E5%BF%97%E5%AE%9E%E7%8E%B0%E5%AF%B9Spring-Boot%E6%97%A5%E5%BF%97%E8%BE%93%E5%87%BA%E7%9A%84%E5%BD%B1%E5%93%8D%E7%AE%80%E8%B0%88"><span class="toc-number">4.</span> <span class="toc-text">四、日志接口与日志实现对Spring Boot日志输出的影响简谈</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81Spring-Boot%E4%B8%8Elombok%E7%9A%84%E7%BB%93%E5%90%88%E4%BD%BF%E7%94%A8"><span class="toc-number">5.</span> <span class="toc-text">五、Spring Boot与lombok的结合使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1%E3%80%81lombok%E5%9C%A8IDEA%E4%B8%8EMaven%E4%B8%AD%E7%9A%84%E5%AE%89%E8%A3%85"><span class="toc-number">5.1.</span> <span class="toc-text">5.1、lombok在IDEA与Maven中的安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2%E3%80%81lombok%E5%9C%A8IDEA%E4%B8%8EMaven%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="toc-number">5.2.</span> <span class="toc-text">5.2、lombok在IDEA与Maven的作用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3%E3%80%81lombok%E7%9A%84%E4%BD%BF%E7%94%A8%EF%BC%88%E6%97%A5%E5%BF%97%E6%96%B9%E9%9D%A2%EF%BC%89"><span class="toc-number">5.3.</span> <span class="toc-text">5.3、lombok的使用（日志方面）</span></a></li></ol></li></ol></div></div></div><header class="post-bg" id="page-header" style="background-image: url(/images/logback.jpg)"><nav id="nav"><span class="pull-left" id="blog_name"><a class="blog_title" id="site-name" href="/">hpng</a></span><span class="pull-right menus"><div id="search_button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 娱乐</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div></div><span class="toggle-menu close"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">Spring Boot第二次学习-关于Spring Boot的日志配置</div></div><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2020-09-06T01:56:25.000Z" title="发表于 2020-09-06 09:56:25">2020-09-06</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2020-11-07T10:17:13.805Z" title="更新于 2020-11-07 18:17:13">2020-11-07</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/springboot/">springboot</a></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><p>阅读官方文档，明确Spring Boot采用的日志系统形式与共存关系，Spring Boot日志的高级配置，Spring Boot日志文件系统的依赖关系，日志接口与日志实现对Spring Boot日志输出的影响简谈，lombok与Spring Boot的结合使用</p>
+<h2 id="一、Spring-Boot采用日志系统形式与共存关系"><a href="#一、Spring-Boot采用日志系统形式与共存关系" class="headerlink" title="一、Spring Boot采用日志系统形式与共存关系"></a>一、Spring Boot采用日志系统形式与共存关系</h2><blockquote>
+<p>Spring Boot uses <a target="_blank" rel="noopener" href="https://commons.apache.org/logging">Commons Logging</a> for all internal logging but leaves the underlying log implementation open. Default configurations are provided for <a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/8/docs/api/java/util/logging/package-summary.html">Java Util Logging</a>, <a target="_blank" rel="noopener" href="https://logging.apache.org/log4j/2.x/">Log4J2</a>, and <a target="_blank" rel="noopener" href="https://logback.qos.ch/">Logback</a>. In each case, loggers are pre-configured to use console output with optional file output also available.</p>
+<p>By default, if you use the “Starters”, Logback is used for logging. Appropriate Logback routing is also included to ensure that dependent libraries that use Java Util Logging, Commons Logging, Log4J, or SLF4J all work correctly.</p>
+</blockquote>
+<ul>
+<li><p>上诉内容讲述了四个方面</p>
+<ul>
+<li><p>第一：Spring Boot默认采用Commons Logging作为日志接口</p>
+</li>
+<li><p>第二：Spring Boot默认配置提供<a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/8/docs/api/java/util/logging/package-summary.html">Java Util Logging</a>, <a target="_blank" rel="noopener" href="https://logging.apache.org/log4j/2.x/">Log4J2</a>, 和<a target="_blank" rel="noopener" href="https://logback.qos.ch/">Logback</a></p>
+</li>
+<li><p>第三：如果你使用了”Starters”，那么Logback会作为默认的日志实现</p>
+</li>
+<li><p>第四：Spring Boot中，在你采用了Logback的情况下，任然可以使用Java Util Logging, Commons Logging, Log4J, 或者 SLF4J。</p>
+<blockquote>
+<p>这句话有两层含义：</p>
+<p>其一，在使用Logback作为日志接口实现的情况，仍然可以使用其它日志实现（eg:log4j）。可查看第四节第二点</p>
+<p>其二，在默认使用的Commons Logging作为日志接口的情况下，任然可以使用SLF4J作为日志接口。可查看第四节第一点</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p>总结：Spring Boot默认使用Commons Logging与Logback作为日志文件系统组合。在使用默认日志系统的情况，仍然可以使用其它的日志系统接口与日志系统实现。</p>
+</li>
+</ul>
+<h2 id="二、Spring-Boot日志的高级配置"><a href="#二、Spring-Boot日志的高级配置" class="headerlink" title="二、Spring Boot日志的高级配置"></a>二、Spring Boot日志的高级配置</h2><ul>
+<li><span style="color:red;">注:</span>为简化问题，此处选择兼容性较好的SLF4J与Logback作为演示基础</li>
+</ul>
+<h3 id="2-1、application-yaml配置方式"><a href="#2-1、application-yaml配置方式" class="headerlink" title="2.1、application.yaml配置方式"></a>2.1、application.yaml配置方式</h3><ul>
+<li><p>文件名与文件路径</p>
+<table>
+<thead>
+<tr>
+<th>logging.file.path</th>
+<th>logging.file.name</th>
+<th>示例</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>无</td>
+<td>无</td>
+<td></td>
+<td>只在控制台输出</td>
+</tr>
+<tr>
+<td>无</td>
+<td>配置文件名</td>
+<td>my.log或/var/log/my.log</td>
+<td>输出到特定的文件中。</td>
+</tr>
+<tr>
+<td>配置路径</td>
+<td>无</td>
+<td>/var/log</td>
+<td>输出到文件夹中，文件名为spring.log</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>tips :Logback独有的日志配置，无法在application.yaml中配置。这里只能配置一些基础内容。name与path不能同时使用，就算同时使用也只会有<code>logging.file.path</code>生效</p>
+</blockquote>
+</li>
+<li><p>其它文件属性配置参数</p>
+<ul>
+<li><p>日志文件的最大大小：默认为10M,可通过<code>logging.file.max-size</code>配置。</p>
+</li>
+<li><p>日志文件存储的时间：默认存储最近7天，可通过<code>logging.file.max-history</code>配置。</p>
+</li>
+<li><p>日志文档的总大小：当日志文档总大小超过该阈值会删除备份，可通过<code>logging.file.total-size-cap</code>。</p>
+</li>
+<li><p>强制启动时清理日志：<code>logging.file.clean-history-on-start</code>。</p>
+</li>
+<li><p>控制台日志输出过滤：<code>logging.pattern.console</code>。</p>
+</li>
+<li><p>日志的日期格式：<code>logging.pattern.dateformat</code></p>
+</li>
+<li><p>过滤日志等级：<code>logging.pattern.level</code></p>
+</li>
+<li><p>日志滚动的名字：<code>logging.pattern.rolling-file-name</code>，默认的名字为<code>$&#123;LOG_FILE&#125;.%d&#123;yyyy-MM-dd&#125;.%i.gz</code></p>
+<blockquote>
+<p>tips: 仅支持Logback</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p>日志的等级</p>
+<ul>
+<li>配置全局的日志等级：<code>logging.level.root</code></li>
+<li>配置包的日志等级：<code>logging.level.包名</code>(eg:<code>logging.level.org.hibernate</code>）</li>
+</ul>
+</li>
+<li><p>日志分组</p>
+<ul>
+<li>解释：通过日志分组，可以同时修改多个包的日志输出等级</li>
+<li>分组：<code>logging.group.分组名</code>（eg : <code>**logging.group.tomcat**=org.apache.catalina, org.apache.coyote, org.apache.tomcat</code>）</li>
+<li>修改输出等级：<code>logging.level.分组名</code>（eg : <code>logging.level.tomcat</code>）</li>
+</ul>
+<blockquote>
+<p>tips: Spring Boot中带有默认的日志分组，可前往官网自行查看，<a target="_blank" rel="noopener" href="https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-custom-log-groups">日志分组</a></p>
+</blockquote>
+</li>
+</ul>
+<h3 id="2-2、日志的xml配置方式"><a href="#2-2、日志的xml配置方式" class="headerlink" title="2.2、日志的xml配置方式"></a>2.2、日志的xml配置方式</h3><h4 id="2-2-1、Spring-Boot加载xml"><a href="#2-2-1、Spring-Boot加载xml" class="headerlink" title="2.2.1、Spring Boot加载xml"></a>2.2.1、Spring Boot加载xml</h4><ul>
+<li><p>修改配置，指定xml位置:<code>logging.config</code>可以配置加载xml路径</p>
+</li>
+<li><p>默认加载配置</p>
+<table>
+<thead>
+<tr>
+<th>日志系统</th>
+<th>配置方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Logback</td>
+<td><code>logback-spring.xml</code>, <code>logback-spring.groovy</code>, <code>logback.xml</code>, 或<code>logback.groovy</code></td>
+</tr>
+<tr>
+<td>Log4j2</td>
+<td><code>log4j2-spring.xml</code> 或 <code>log4j2.xml</code></td>
+</tr>
+<tr>
+<td>JDK (Java Util Logging)</td>
+<td><code>logging.properties</code></td>
+</tr>
+</tbody></table>
+</li>
+</ul>
+<h4 id="2-2-2、Spring-Boot中配置logback-spring-xml"><a href="#2-2-2、Spring-Boot中配置logback-spring-xml" class="headerlink" title="2.2.2、Spring Boot中配置logback-spring.xml"></a>2.2.2、Spring Boot中配置logback-spring.xml</h4><ul>
+<li><span style="color:red">注:</span> 本文不关注logback的xml中的具体内容，因而可自行百度查询各个字段含义</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">substitutionProperty</span> <span class="attr">name</span>=<span class="string">&quot;log.base&quot;</span> <span class="attr">value</span>=<span class="string">&quot;F:\\TestImage&quot;</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!--控制台输出--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">appender</span> <span class="attr">name</span>=<span class="string">&quot;stdout&quot;</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.ConsoleAppender&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">encoder</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.classic.encoder.PatternLayoutEncoder&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">pattern</span>&gt;</span>%date [%thread][IP:%X&#123;ip&#125;|USER:%X&#123;user&#125;][%-5level %logger&#123;80&#125;] %msg%n<span class="tag">&lt;/<span class="name">pattern</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">encoder</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">appender</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!--滚动日志：其中包括日志输出名字、滚动的规则--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">appender</span> <span class="attr">name</span>=<span class="string">&quot;rollingFile&quot;</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.rolling.RollingFileAppender&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">file</span>&gt;</span>$&#123;log.base&#125;/stdout.log<span class="tag">&lt;/<span class="name">file</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">rollingPolicy</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.rolling.TimeBasedRollingPolicy&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">FileNamePattern</span>&gt;</span>$&#123;log.base&#125;/stdout.%d&#123;yyyy-MM-dd&#125;.%i.log<span class="tag">&lt;/<span class="name">FileNamePattern</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">timeBasedFileNamingAndTriggeringPolicy</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP&quot;</span>&gt;</span></span><br><span class="line">                <span class="comment">&lt;!-- or whenever the file size reaches 100MB --&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">maxFileSize</span>&gt;</span>100MB<span class="tag">&lt;/<span class="name">maxFileSize</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">timeBasedFileNamingAndTriggeringPolicy</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">rollingPolicy</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">encoder</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.classic.encoder.PatternLayoutEncoder&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">pattern</span>&gt;</span>%date [%thread][IP:%X&#123;ip&#125;|USER:%X&#123;user&#125;][%-5level %logger&#123;80&#125;] %msg%n<span class="tag">&lt;/<span class="name">pattern</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">encoder</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">appender</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!--异常日志输出：其中包括日志输出名、滚动规则--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">appender</span> <span class="attr">name</span>=<span class="string">&quot;ExceptionLoggerFileOut&quot;</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.rolling.RollingFileAppender&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">file</span>&gt;</span>$&#123;log.base&#125;/exception.log<span class="tag">&lt;/<span class="name">file</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">rollingPolicy</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.rolling.TimeBasedRollingPolicy&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">FileNamePattern</span>&gt;</span>$&#123;log.base&#125;/exception.%d&#123;yyyy-MM-dd&#125;.%i.log<span class="tag">&lt;/<span class="name">FileNamePattern</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">timeBasedFileNamingAndTriggeringPolicy</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP&quot;</span>&gt;</span></span><br><span class="line">                <span class="comment">&lt;!-- or whenever the file size reaches 100MB --&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">maxFileSize</span>&gt;</span>100MB<span class="tag">&lt;/<span class="name">maxFileSize</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">timeBasedFileNamingAndTriggeringPolicy</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">rollingPolicy</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">encoder</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.classic.encoder.PatternLayoutEncoder&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">pattern</span>&gt;</span>%date [%thread][IP:%X&#123;ip&#125;|USER:%X&#123;user&#125;][%-5level %logger&#123;80&#125;] %msg%n<span class="tag">&lt;/<span class="name">pattern</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">encoder</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">appender</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">logger</span> <span class="attr">name</span>=<span class="string">&quot;com.shangde.common.sys.log.SysLogInterceptor&quot;</span> <span class="attr">level</span>=<span class="string">&quot;DEBUG&quot;</span> <span class="attr">additivity</span>=<span class="string">&quot;true&quot;</span> &gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">appender-ref</span> <span class="attr">ref</span>=<span class="string">&quot;ExceptionLoggerFileOut&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">logger</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!--各个包的日志输出等级--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">logger</span> <span class="attr">name</span>=<span class="string">&quot;com.cff&quot;</span> <span class="attr">level</span>=<span class="string">&quot;DEBUG&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">logger</span> <span class="attr">name</span>=<span class="string">&quot;com&quot;</span> <span class="attr">level</span>=<span class="string">&quot;INFO&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">logger</span> <span class="attr">name</span>=<span class="string">&quot;ch.qos.logback&quot;</span> <span class="attr">level</span>=<span class="string">&quot;INFO&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">logger</span> <span class="attr">name</span>=<span class="string">&quot;org.mybatis&quot;</span> <span class="attr">level</span>=<span class="string">&quot;INFO&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">logger</span> <span class="attr">name</span>=<span class="string">&quot;org&quot;</span> <span class="attr">level</span>=<span class="string">&quot;INFO&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">logger</span> <span class="attr">name</span>=<span class="string">&quot;springfox&quot;</span> <span class="attr">level</span>=<span class="string">&quot;INFO&quot;</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!--总的输出等级--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">root</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">level</span> <span class="attr">value</span>=<span class="string">&quot;DEBUG&quot;</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">appender-ref</span> <span class="attr">ref</span>=<span class="string">&quot;stdout&quot;</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">appender-ref</span> <span class="attr">ref</span>=<span class="string">&quot;rollingFile&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2-2-3、Spring-Boot中配置log4j2-spring-xml"><a href="#2-2-3、Spring-Boot中配置log4j2-spring-xml" class="headerlink" title="2.2.3、Spring Boot中配置log4j2-spring.xml"></a>2.2.3、Spring Boot中配置log4j2-spring.xml</h4><ul>
+<li><p><span style="color:red">注:</span> 本文不关注logback的xml中的具体内容，因而可自行百度查询各个字段含义</p>
+</li>
+<li><p>使用log4j2作为Spring Boot的日志系统，需要先将”Starts”中的Logback排除，增加Log4j2的Spring Boot包。<strong>日志接口仍然采用SLF4J！</strong></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">exclusions</span>&gt;</span></span><br><span class="line">               <span class="tag">&lt;<span class="name">exclusion</span>&gt;</span></span><br><span class="line">                   <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                   <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-logging<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">               <span class="tag">&lt;/<span class="name">exclusion</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;/<span class="name">exclusions</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">  </span><br><span class="line">       <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-log4j2<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>xml配置文件内容</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">Configuration</span> <span class="attr">status</span>=<span class="string">&quot;OFF&quot;</span> <span class="attr">monitorInterval</span>=<span class="string">&quot;1800&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;LOG_HOME&quot;</span>&gt;</span>D:/test<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;FILE_NAME&quot;</span>&gt;</span>stdout<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">Appenders</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">Console</span> <span class="attr">name</span>=<span class="string">&quot;Console&quot;</span> <span class="attr">target</span>=<span class="string">&quot;SYSTEM_OUT&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">PatternLayout</span> <span class="attr">pattern</span>=<span class="string">&quot;%d&#123;HH:mm:ss.SSS&#125; [%t] %-5level %logger&#123;36&#125; - %msg%n&quot;</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">Console</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">RollingFile</span> <span class="attr">name</span>=<span class="string">&quot;running-log&quot;</span> <span class="attr">fileName</span>=<span class="string">&quot;$&#123;LOG_HOME&#125;/$&#123;FILE_NAME&#125;.log&quot;</span></span></span><br><span class="line"><span class="tag">            <span class="attr">filePattern</span>=<span class="string">&quot;$&#123;LOG_HOME&#125;/$$&#123;date:yyyy-MM&#125;/$&#123;FILE_NAME&#125;-%d&#123;yyyy-MM-dd&#125;-%i.log.gz&quot;</span></span></span><br><span class="line"><span class="tag">            <span class="attr">immediateFlush</span>=<span class="string">&quot;true&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">PatternLayout</span></span></span><br><span class="line"><span class="tag">                <span class="attr">pattern</span>=<span class="string">&quot;%date&#123;yyyy-MM-dd HH:mm:ss.SSS&#125; %level [%thread][%file:%line] - %msg%n&quot;</span> /&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">Policies</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">TimeBasedTriggeringPolicy</span> /&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">SizeBasedTriggeringPolicy</span> <span class="attr">size</span>=<span class="string">&quot;10 MB&quot;</span> /&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">Policies</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">DefaultRolloverStrategy</span> <span class="attr">max</span>=<span class="string">&quot;20&quot;</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">RollingFile</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">Appenders</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">Loggers</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">Logger</span> <span class="attr">name</span>=<span class="string">&quot;com.cff&quot;</span> <span class="attr">level</span>=<span class="string">&quot;debug&quot;</span> <span class="attr">additivity</span>=<span class="string">&quot;true&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">AppenderRef</span> <span class="attr">ref</span>=<span class="string">&quot;running-log&quot;</span> /&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">AppenderRef</span> <span class="attr">ref</span>=<span class="string">&quot;Console&quot;</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">Logger</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">Root</span> <span class="attr">level</span>=<span class="string">&quot;info&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- 这里是输入到文件，很重要 --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">AppenderRef</span> <span class="attr">ref</span>=<span class="string">&quot;running-log&quot;</span> /&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- 这里是输入到控制台 --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">AppenderRef</span> <span class="attr">ref</span>=<span class="string">&quot;Console&quot;</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">Root</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">Loggers</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">Configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<h4 id="2-2-4、关于log4j的特殊说明"><a href="#2-2-4、关于log4j的特殊说明" class="headerlink" title="2.2.4、关于log4j的特殊说明"></a>2.2.4、关于log4j的特殊说明</h4><ul>
+<li>根据文中的意思，log4j日志系统具有重大缺陷，因而建议将日志系统切换为log4j2或logback。<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/wAqmsghhmiTDbv1GGFHTKQ">原文内容</a></li>
+</ul>
+<h2 id="三、Spring-Boot日志文件系统的依赖关系"><a href="#三、Spring-Boot日志文件系统的依赖关系" class="headerlink" title="三、Spring Boot日志文件系统的依赖关系"></a>三、Spring Boot日志文件系统的依赖关系</h2><ul>
+<li><p>Logback是”Start”中默认引入的日志系统</p>
+<p><img src= "/img/loading.gif" data-lazy-src="data:image/png;base64,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" alt="image"></p>
+</li>
+<li><p>Log4J2需要单独引入，引入时需要排除Logback</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">exclusions</span>&gt;</span></span><br><span class="line">               <span class="tag">&lt;<span class="name">exclusion</span>&gt;</span></span><br><span class="line">                   <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                   <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-logging<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">               <span class="tag">&lt;/<span class="name">exclusion</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;/<span class="name">exclusions</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">  </span><br><span class="line">       <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-log4j2<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h2 id="四、日志接口与日志实现对Spring-Boot日志输出的影响简谈"><a href="#四、日志接口与日志实现对Spring-Boot日志输出的影响简谈" class="headerlink" title="四、日志接口与日志实现对Spring Boot日志输出的影响简谈"></a>四、日志接口与日志实现对Spring Boot日志输出的影响简谈</h2><ul>
+<li><p>在Spring Boot中使用Commons Logging或SLF4J，那么实现可以随意使用Logback或Log4J,影响日志输出的将只与它们的配置方式有关，Spring Boot的配置方式可查看<strong>第三章</strong>。其中关于Log4J的使用可参考上文。关于Logback或Log4J对于Spring Boot日志输出的影响，可看下表：</p>
+<table>
+<thead>
+<tr>
+<th>日志系统</th>
+<th>yaml配置</th>
+<th>xml配置</th>
+<th>解释与结论</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Logback</td>
+<td>不配置</td>
+<td>log4j2-spring.xml</td>
+<td>由于引入的Logback日志系统，配置将以YAML中的配置为准，即只输出到控制台</td>
+</tr>
+<tr>
+<td>Logback</td>
+<td>不配置</td>
+<td>logback-spring.xml</td>
+<td>由于引入Logback日志系统，配置将以logback.xml中的配置为准</td>
+</tr>
+<tr>
+<td>Log4J</td>
+<td>不配置</td>
+<td>logback-spring.xml</td>
+<td>由于引入的Log4J日志系统，配置将以YAML中的配置为准，即只输出到控制台</td>
+</tr>
+<tr>
+<td>Log4J</td>
+<td>不配置</td>
+<td>log4j2-spring.xml</td>
+<td>由于引入Log4J日志系统，配置将以log4j2.xml中的配置为准</td>
+</tr>
+<tr>
+<td>Logback</td>
+<td>配置xml文件为log4j2.xml</td>
+<td>log4j2-spring.xml</td>
+<td>将以yaml中配置的xml文件路径为准，日志输出以xml中内容为准</td>
+</tr>
+<tr>
+<td>Log4J</td>
+<td>配置xml文件为logback.xml</td>
+<td>logback-spring.xml</td>
+<td>将以yaml中配置的xml文件路径为准，日志输出以xml中内容为准</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>tips : 日志接口Commons Logging或SLF4J可以同时使用</p>
+</blockquote>
+</li>
+<li><p>在Spring Boot程序运行过程中，通过使用<code>@log4j2、@log等</code>这种具体的日志系统而不是日志系统接口</p>
+<ul>
+<li>注：这种情况下，只要在maven中引入了对应的日志系统实现包就可以在Spring Boot中使用，并且任然可以打印到控制台，只是可能存在无法输出到文件中。具体原因是你Spring Boot使用的是Logback日志系统，你单独使用的是Log4j2，那么将无法输出到文件中。</li>
+</ul>
+</li>
+</ul>
+<h2 id="五、Spring-Boot与lombok的结合使用"><a href="#五、Spring-Boot与lombok的结合使用" class="headerlink" title="五、Spring Boot与lombok的结合使用"></a>五、Spring Boot与lombok的结合使用</h2><h3 id="5-1、lombok在IDEA与Maven中的安装"><a href="#5-1、lombok在IDEA与Maven中的安装" class="headerlink" title="5.1、lombok在IDEA与Maven中的安装"></a>5.1、lombok在IDEA与Maven中的安装</h3><ul>
+<li>本人使用的是Idea，因而在Plugins中搜索lombok，安装对应的插件。</li>
+<li>在Maven引入lombok的依赖</li>
+</ul>
+<h3 id="5-2、lombok在IDEA与Maven的作用"><a href="#5-2、lombok在IDEA与Maven的作用" class="headerlink" title="5.2、lombok在IDEA与Maven的作用"></a>5.2、lombok在IDEA与Maven的作用</h3><ul>
+<li><p>Plugins中的lombok作用：是防止IDEA的自动语法检查导致的报错。原因是在maven中包引入后，lombok会在编译期间对代码进行修改，但是IDEA并不知道这些修改（eg:getValue()方法会错误），因而需要引入lombok的插件</p>
+</li>
+<li><p>Maven中的lombok作用：实现JSR269api,修改AST(抽象语法树)</p>
+<blockquote>
+<p>tips:上诉内容属于lombok的实现原理，具体内容我参考了这篇博客<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/fc06578e805a">《lombok原理分析与功能实现》</a></p>
+</blockquote>
+</li>
+</ul>
+<h3 id="5-3、lombok的使用（日志方面）"><a href="#5-3、lombok的使用（日志方面）" class="headerlink" title="5.3、lombok的使用（日志方面）"></a>5.3、lombok的使用（日志方面）</h3><ul>
+<li><p>@<strong>CommonsLog</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> org.apache.commons.logging.Log log = org.apache.commons.logging.LogFactory.getLog(LogExample.class);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>@Flogger</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> com.google.common.flogger.FluentLogger log = com.google.common.flogger.FluentLogger.forEnclosingClass();</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>@JBossLog</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> org.jboss.logging.Logger log = org.jboss.logging.Logger.getLogger(LogExample.class);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>@Log</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> java.util.logging.Logger log = java.util.logging.Logger.getLogger(LogExample.class.getName());</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>@Log4j</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(LogExample.class);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>@Log4j2</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> org.apache.logging.log4j.Logger log = org.apache.logging.log4j.LogManager.getLogger(LogExample.class);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>@Slf4j</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(LogExample.class);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>@XSlf4j</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> org.slf4j.ext.XLogger log = org.slf4j.ext.XLoggerFactory.getXLogger(LogExample.class);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>@CustomLog</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> com.foo.your.Logger log = com.foo.your.LoggerFactory.createYourLogger(LogExample.class);</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>tips:主要的使用内容，可点击<a target="_blank" rel="noopener" href="https://projectlombok.org/features/log">lombok日志使用</a></p>
+</blockquote>
+</li>
+</ul>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">hpng</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://nikohpng.github.io/2020/09/06/page/springboot%E7%AC%AC%E4%BA%8C%E6%AC%A1%E5%AD%A6%E4%B9%A0-%E5%85%B3%E4%BA%8Espringboot%E7%9A%84%E6%97%A5%E5%BF%97%E9%85%8D%E7%BD%AE/">http://nikohpng.github.io/2020/09/06/page/springboot%E7%AC%AC%E4%BA%8C%E6%AC%A1%E5%AD%A6%E4%B9%A0-%E5%85%B3%E4%BA%8Espringboot%E7%9A%84%E6%97%A5%E5%BF%97%E9%85%8D%E7%BD%AE/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://nikohpng.github.io" target="_blank">hpng</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/log/">log</a></div><div class="post_share"><div class="social-share" data-image="/images/logback.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2020/10/14/system/shell%E7%9A%84%E5%9F%BA%E6%9C%AC%E8%AE%A4%E8%AF%86/"><img class="prev-cover" data-lazy-src="/images/shell.jpg" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">shell的基本认识</div></div></a></div><div class="next-post pull-right"><a href="/2020/09/01/page/springboot%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AD%A6%E4%B9%A0-%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E9%A1%B9%E7%9B%AE/"><img class="next-cover" data-lazy-src="/images/springboot.jpg" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">springboot第一次学习-搭建一个简单的项目</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></article></main><footer id="footer" data-type="color"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By hpng</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a><br>
+<img src="https://www.hepng.cool/images/beian.png">
+<a href="http://beian.miit.gov.cn/"  style="color:#f72b07" target="_blank">蜀ICP备20025047号</a></div></div></footer></div><section id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font_plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font_minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="translateLink" type="button" title="简繁转换">繁</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>Powered by</span> <a target="_blank" rel="noopener" href="https://github.com/wzpan/hexo-generator-search" style="color:#49B1F5;">hexo-generator-search</a></div></div></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div><div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module" defer></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js" async></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>function addGitalkSource () {
+  const ele = document.createElement('link')
+  ele.rel = 'stylesheet'
+  ele.href= 'https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css'
+  document.getElementsByTagName('head')[0].appendChild(ele)
+}
+
+function loadGitalk () {
+  function initGitalk () {
+    var gitalk = new Gitalk({
+      clientID: '1ea5a82e92883adabd34',
+      clientSecret: 'deebfffe650e98014107cef0d37b8ca4c3fe733a',
+      repo: 'nikohpng.github.io',
+      owner: 'nikohpng',
+      admin: ['nikohpng'],
+      id: '3103aad29b59c0c8ae88e06258888ccc',
+      language: 'zh-CN',
+      perPage: 10,
+      distractionFreeMode: false,
+      pagerDirection: 'last',
+      createIssueManually: true,
+      updateCountCallback: commentCount
+    })
+    gitalk.render('gitalk-container')
+  }
+
+  if (typeof Gitalk === 'function') initGitalk()
+  else {
+    addGitalkSource()
+    $.getScript('https://cdn.jsdelivr.net/npm/gitalk@latest/dist/gitalk.min.js', initGitalk)
+  }
+}
+
+function commentCount(n){
+  let isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+  if (isCommentCount) {
+    isCommentCount.innerHTML= n
+  }
+}
+
+if ('Gitalk' === 'Gitalk' || !true) {
+  if (true) loadComment(document.getElementById('gitalk-container'), loadGitalk)
+  else loadGitalk()
+} else {
+  function loadOtherComment () {
+    loadGitalk()
+  }
+}</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></div></body></html>
