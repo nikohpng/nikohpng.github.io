@@ -3026,4 +3026,16 @@
         <tag>opus、h264</tag>
       </tags>
   </entry>
+  <entry>
+    <title>FreeSWITCH在Linux下编译模块编译</title>
+    <url>/2023/03/22/freeswitch/FreeSWITCH%E5%9C%A8Linux%E4%B8%8B%E7%BC%96%E8%AF%91%E6%A8%A1%E5%9D%97%E7%BC%96%E8%AF%91/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="\assets\js\Meting.min.js"></script><p>本文主要讲解在 Linux 环境下编译 FreeSWITCH 模块时的配置以及所遇到的问题</p>
+<h2 id="Linux-下编译-MOD-的配置"><a href="#Linux-下编译-MOD-的配置" class="headerlink" title="Linux 下编译 MOD 的配置"></a>Linux 下编译 MOD 的配置</h2>]]></content>
+      <categories>
+        <category>FreeSWTICH</category>
+      </categories>
+      <tags>
+        <tag>mod</tag>
+      </tags>
+  </entry>
 </search>
