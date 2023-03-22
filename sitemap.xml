@@ -2,6 +2,34 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://nikohpng.github.io/2023/03/21/codec/opus%E7%BC%96%E8%A7%A3%E7%A0%81%E7%9B%B8%E5%85%B3%E4%BB%8B%E7%BB%8D/</loc>
+    
+    <lastmod>2023-03-22</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://nikohpng.github.io/2023/03/20/tools/wireshark%E6%8A%93%E5%8C%85%E5%88%86%E6%9E%90%E9%9F%B3%E8%A7%86%E9%A2%91/</loc>
+    
+    <lastmod>2023-03-21</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://nikohpng.github.io/2023/01/14/ims/signal/%E9%80%9A%E4%BF%A1%E5%8F%91%E5%B1%95%E4%B8%8E%E9%80%9A%E4%BF%A1%E5%8E%9F%E7%90%86/</loc>
+    
+    <lastmod>2023-01-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://nikohpng.github.io/2023/01/14/ims/signal/sip-i%E4%B8%8Esip-t%E7%9A%84%E5%8C%BA%E5%88%ABi/</loc>
+    
+    <lastmod>2023-01-14</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://nikohpng.github.io/2022/01/01/webrtc/webrtc%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-%E9%9F%B3%E9%A2%91%E8%B0%83%E7%94%A8%E6%B5%81%E7%A8%8B/</loc>
     
     <lastmod>2022-10-22</lastmod>
@@ -319,7 +347,7 @@
 
   <url>
     <loc>http://nikohpng.github.io/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -327,266 +355,287 @@
   
   <url>
     <loc>http://nikohpng.github.io/tags/demo/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/FreeSWITCH%E6%BA%90%E7%A0%81/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/%E4%BE%9D%E8%B5%96/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/command/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/event/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/%E8%A7%A3%E6%9E%84%E8%B5%8B%E5%80%BC/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/mybatis/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/spring-boot%E6%BA%90%E7%A0%81/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/maven/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/pom/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/eureka/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/bash/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/win/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/%E8%A7%86%E9%A2%91%E4%BC%9A%E8%AE%AE/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/%E9%9F%B3%E8%A7%86%E9%A2%91%E8%AE%A4%E8%AF%86/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/WebRTC%E7%BC%96%E8%AF%91/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/WebRTC/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/fork/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/%E5%87%BD%E6%95%B0/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/%E6%95%B0%E7%BB%84/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/%E5%8F%98%E9%87%8F/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/attribute/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/%E5%85%B3%E9%94%AE%E5%AD%97/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/%E9%9D%A2%E8%AF%95%E9%A2%98/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/c-release/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/%E4%BD%8D%E8%BF%90%E7%AE%97/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/%E6%96%AD%E8%A8%80/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/socket/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/%E7%BA%BF%E7%A8%8B/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/IO/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/make/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/hexo/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/janus-admin/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/log/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/springcloud/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/tags/tomcat/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://nikohpng.github.io/tags/opus/</loc>
+    <lastmod>2023-03-22</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://nikohpng.github.io/tags/signal/</loc>
+    <lastmod>2023-03-22</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://nikohpng.github.io/tags/opus%E3%80%81h264/</loc>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
@@ -595,119 +644,140 @@
   
   <url>
     <loc>http://nikohpng.github.io/categories/demo/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/categories/freeswitch/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/categories/FreeSWTICH/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/categories/ES6/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/categories/mybatis/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/categories/springboot/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/categories/springcloud/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/categories/Shell/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/categories/%E5%91%BD%E4%BB%A4%E8%A1%8C/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/categories/view/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/categories/WebRTC/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/categories/c/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/categories/linux/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/categories/FFmpeg/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/categories/hexo/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/categories/janus/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://nikohpng.github.io/categories/tomcat/</loc>
-    <lastmod>2022-10-22</lastmod>
+    <lastmod>2023-03-22</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://nikohpng.github.io/categories/codec/</loc>
+    <lastmod>2023-03-22</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://nikohpng.github.io/categories/ims/</loc>
+    <lastmod>2023-03-22</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://nikohpng.github.io/categories/capture/</loc>
+    <lastmod>2023-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>

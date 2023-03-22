@@ -6,7 +6,7 @@
   <link href="http://nikohpng.github.io/atom.xml" rel="self"/>
   
   <link href="http://nikohpng.github.io/"/>
-  <updated>2022-05-22T12:56:56.451Z</updated>
+  <updated>2023-03-22T13:16:32.861Z</updated>
   <id>http://nikohpng.github.io/</id>
   
   <author>
@@ -15,6 +15,102 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>opus编解码相关介绍</title>
+    <link href="http://nikohpng.github.io/2023/03/21/codec/opus%E7%BC%96%E8%A7%A3%E7%A0%81%E7%9B%B8%E5%85%B3%E4%BB%8B%E7%BB%8D/"/>
+    <id>http://nikohpng.github.io/2023/03/21/codec/opus%E7%BC%96%E8%A7%A3%E7%A0%81%E7%9B%B8%E5%85%B3%E4%BB%8B%E7%BB%8D/</id>
+    <published>2023-03-21T13:04:00.000Z</published>
+    <updated>2023-03-22T13:16:32.861Z</updated>
+    
+    <content type="html"><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="\assets\js\Meting.min.js"></script><p>本文主要讲解在实际开发中遇到的关于Opus的编解码问题</p><h2 id="SDP中OPUS介绍"><a href="#SDP中OPUS介绍" class="headerlink" title="SDP中OPUS介绍"></a>SDP中OPUS介绍</h2><p>在 SDP 中，任何其它采样率都不起作用，在 rtp 传输时默认采用 48000, 可以在 <a href="https://www.rfc-editor.org/rfc/rfc7587">rfc7587 Section 4.1</a> 中查看<br>如下所示：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Opus supports 5 different audio bandwidths, which can be adjusted</span><br><span class="line">during a stream.  The RTP timestamp is incremented with a 48000 Hz</span><br><span class="line">clock rate for all modes of Opus and all sampling rates.  The unit</span><br><span class="line">for the timestamp is samples per single (mono) channel.  The RTP</span><br><span class="line">timestamp corresponds to the sample time of the first encoded sample</span><br><span class="line">in the encoded frame.  For data encoded with sampling rates other</span><br><span class="line">than 48000 Hz, the sampling rate has to be adjusted to 48000 Hz.</span><br></pre></td></tr></table></figure><p>如果想要降低带宽，那么可以使用 <code>maxplaybackrate</code> 和 <code>maxaveragebitrate </code>，标准文档如下所示</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">3.1.1.  Recommended Bitrate</span><br><span class="line"></span><br><span class="line">   For a frame size of 20 ms, these are the bitrate &quot;sweet spots&quot; for  Opus in various configurations:</span><br><span class="line"></span><br><span class="line">   o  8-12 kbit&#x2F;s for NB speech,</span><br><span class="line">   o  16-20 kbit&#x2F;s for WB speech,</span><br><span class="line">   o  28-40 kbit&#x2F;s for FB speech,</span><br><span class="line">   o  48-64 kbit&#x2F;s for FB mono music, and</span><br><span class="line">   o  64-128 kbit&#x2F;s for FB stereo music.</span><br></pre></td></tr></table></figure><p>例如：如果想要使用 8000HZ 的 OPUS，那么 SDP 应该如下所示：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">m&#x3D;audio 54312 RTP&#x2F;AVP 101</span><br><span class="line">a&#x3D;rtpmap:101 opus&#x2F;48000&#x2F;2</span><br><span class="line">a&#x3D;fmtp:101 maxplaybackrate&#x3D;8000; sprop-maxcapturerate&#x3D;8000; maxaveragebitrate&#x3D;12000</span><br></pre></td></tr></table></figure><h2 id="WebRTC-中非对称采样率工作"><a href="#WebRTC-中非对称采样率工作" class="headerlink" title="WebRTC 中非对称采样率工作"></a>WebRTC 中非对称采样率工作</h2><p>WebRTC 支持通信双方以非对称采样率工作。比如：A和B通话，A的采样率为48000，B的采样率为8000。如下所示</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">A--&gt;B OfferSDP</span><br><span class="line">a&#x3D;rtpmap:111 opus&#x2F;48000&#x2F;2</span><br><span class="line">a&#x3D;rtcp-fb:111 transport-cc</span><br><span class="line">a&#x3D;fmtp:111 minptime&#x3D;10;useinbandfec&#x3D;1;maxplaybackrate&#x3D;16000</span><br></pre></td></tr></table></figure><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">B--&gt;A AnswerSDP</span><br><span class="line">a&#x3D;rtpmap:111 opus&#x2F;48000&#x2F;2</span><br><span class="line">a&#x3D;rtcp-fb:111 transport-cc</span><br><span class="line">a&#x3D;fmtp:111 minptime&#x3D;10;useinbandfec&#x3D;1;maxplaybackrate&#x3D;48000</span><br></pre></td></tr></table></figure><p>最终，A 采样率为48000，B 采用率为 16000</p><h2 id="WebRTC-中声道数与编码器的关系"><a href="#WebRTC-中声道数与编码器的关系" class="headerlink" title="WebRTC 中声道数与编码器的关系"></a>WebRTC 中声道数与编码器的关系</h2><p>当声道数 2 时，OPUS 编码内部将使用 celt ,代码如下：</p><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">///FIXME 暂时未查阅到</span></span><br><span class="line">config.application = config.num_channels == <span class="number">1</span> ? AudioEncoderOpus::kVoip : AudioEncoderOpus::kAudio;</span><br></pre></td></tr></table></figure><h2 id="OPUS编解码"><a href="#OPUS编解码" class="headerlink" title="OPUS编解码"></a>OPUS编解码</h2><p>OPUS代码的时候使用 <a href="https://github.com/xiph/opus">opus</a> 进行编解码，可以使用 <code>opus/doc/trivial_example.c</code> 进行测试</p><h2 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h2><p><a href="https://stackoverflow.com/questions/60580526/linphone-opus-codec-sampling-rate">Linphone opus codec sampling rate</a></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;\assets\css\APlayer.min.css&quot;&gt;&lt;script src=&quot;\assets\js\APlayer.min.js&quot; cla</summary>
+      
+    
+    
+    
+    <category term="codec" scheme="http://nikohpng.github.io/categories/codec/"/>
+    
+    
+    <category term="opus" scheme="http://nikohpng.github.io/tags/opus/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>wireshark抓包分析音视频</title>
+    <link href="http://nikohpng.github.io/2023/03/20/tools/wireshark%E6%8A%93%E5%8C%85%E5%88%86%E6%9E%90%E9%9F%B3%E8%A7%86%E9%A2%91/"/>
+    <id>http://nikohpng.github.io/2023/03/20/tools/wireshark%E6%8A%93%E5%8C%85%E5%88%86%E6%9E%90%E9%9F%B3%E8%A7%86%E9%A2%91/</id>
+    <published>2023-03-20T11:36:01.000Z</published>
+    <updated>2023-03-21T13:18:45.415Z</updated>
+    
+    <content type="html"><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="\assets\js\Meting.min.js"></script><p>本文主要记录通过 wireshark 抓音视频的分析方法</p><h2 id="win上抓包分析"><a href="#win上抓包分析" class="headerlink" title="win上抓包分析"></a>win上抓包分析</h2><p>window上面主要以导入 lua 解析文件为主</p><ul><li><p>在 wireshark 安装目录下面，有个 init.lua， 在其中加入如下所示内容：</p>  <figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">dofile</span>(USER_DIR..filename)</span><br></pre></td></tr></table></figure></li><li><p>导入成功后，重启wireshark， 在工具栏中就会出现导入的 lua 文件名字。</p></li><li><p>随后到 <strong>编辑-&gt;首选项-&gt;协议</strong> 中根据需要解码的音视频，填写 payload 值</p></li><li><p>最后，当获取到 *.pcap 文件后，点击 工具-&gt;lua的名字 运行即可</p></li></ul><h2 id="linux上抓包分析opus"><a href="#linux上抓包分析opus" class="headerlink" title="linux上抓包分析opus"></a>linux上抓包分析opus</h2><p>此处步骤仅用于在 linux 上，通过命令行的形式分析 opus</p><ul><li>获取 python 脚本，<a href="https://github.com/kamanashisroy/opus_stream_tool">opus_stream_tool</a></li><li>tcpdump -i eth0 port 1234 -w in.pcap</li><li>tshark -x -r in.pcap -Y “udp.srcport == myport” | cut -d “ “ -f 1-20 &gt; tmp.txt</li><li>hex_to_opus.py -x tmp.txt –recordfile out.opus –rtpoffset 42</li></ul>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;\assets\css\APlayer.min.css&quot;&gt;&lt;script src=&quot;\assets\js\APlayer.min.js&quot; cla</summary>
+      
+    
+    
+    
+    <category term="capture" scheme="http://nikohpng.github.io/categories/capture/"/>
+    
+    
+    <category term="opus、h264" scheme="http://nikohpng.github.io/tags/opus%E3%80%81h264/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>通信发展与通信原理</title>
+    <link href="http://nikohpng.github.io/2023/01/14/ims/signal/%E9%80%9A%E4%BF%A1%E5%8F%91%E5%B1%95%E4%B8%8E%E9%80%9A%E4%BF%A1%E5%8E%9F%E7%90%86/"/>
+    <id>http://nikohpng.github.io/2023/01/14/ims/signal/%E9%80%9A%E4%BF%A1%E5%8F%91%E5%B1%95%E4%B8%8E%E9%80%9A%E4%BF%A1%E5%8E%9F%E7%90%86/</id>
+    <published>2023-01-14T03:15:43.000Z</published>
+    <updated>2023-01-14T03:16:57.746Z</updated>
+    
+    <content type="html"><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="\assets\js\Meting.min.js"></script><h2 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h2><p><a href="https://www.bilibili.com/video/BV1f7411E7qt?p=45&vd_source=0d29a16004eefac32b97ba41ab3821c1">CMDA系统</a><br><a href="https://www.bilibili.com/video/BV1vr4y1L7mm/?vd_source=0d29a16004eefac32b97ba41ab3821c1">通信复习-多路复用的三种方法：频分复用，时分复用，码分复用</a></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;\assets\css\APlayer.min.css&quot;&gt;&lt;script src=&quot;\assets\js\APlayer.min.js&quot; cla</summary>
+      
+    
+    
+    
+    <category term="ims" scheme="http://nikohpng.github.io/categories/ims/"/>
+    
+    
+    <category term="signal" scheme="http://nikohpng.github.io/tags/signal/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>sip-i与sip-t的区别i</title>
+    <link href="http://nikohpng.github.io/2023/01/14/ims/signal/sip-i%E4%B8%8Esip-t%E7%9A%84%E5%8C%BA%E5%88%ABi/"/>
+    <id>http://nikohpng.github.io/2023/01/14/ims/signal/sip-i%E4%B8%8Esip-t%E7%9A%84%E5%8C%BA%E5%88%ABi/</id>
+    <published>2023-01-14T02:41:12.000Z</published>
+    <updated>2023-01-14T02:50:12.425Z</updated>
+    
+    <content type="html"><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="\assets\js\Meting.min.js"></script><p>全球语音网络正在向基于IP的通信系统迁移。然而，现有的PSTN网络将继续存在一段时间。因此，VOIP和PSTN之间的互连能力在如今的语音市场上扮演重要的角色。</p><p>就像两种语言之间的翻译（英语&lt;-&gt;荷兰语），两个系统的映射作为基本的互连功能出现。</p><p>SIP-I和SIP-T是两种类似的方法，用于ISUP网络和SIP网络之间的互通，换句话说，就是PSTN和VoIP网络。具体来说，它们有助于通过SIP网络传送ISUP参数，这样在ISUP网络上发起和终止的呼叫就可以通过SIP网络转接，而不会丢失信息。</p><p>SIP-I和SIP-T都定义了SIP和ISUP网络之间的消息、参数和错误代码的映射。它们都可以与SIP网络上符合要求的SIP网络组件完全互操作。</p><p>SIP-I和SIP-T允许ISUP参数在SIP网络中透明传输的方式是，在入口处的PSTN网关将原始ISUP消息的字面副本附加到SIP消息中；这个ISUP消息作为另一个主体出现在SIP消息中。</p><h2 id="SIP-I-与-SIP-T-的不同点"><a href="#SIP-I-与-SIP-T-的不同点" class="headerlink" title="SIP-I 与 SIP-T 的不同点"></a>SIP-I 与 SIP-T 的不同点</h2><ul><li><p>SIP-I是由ITU在2004年开发的（定义在ITU-T Q.1912.5），而SIP-T是由开发SIP的IETF（互联网工程任务组）开发的。</p></li><li><p>SIP-I定义了从SIP到BICC以及ISUP的映射，而SIP-T只解决ISUP的问题。</p></li><li><p>SIP-T是为与本地SIP终端的互操作而设计的，而SIP-I只限于在PSTN网关之间使用。</p></li><li><p>SIP-I更准确，明确地定义了ISUP和SIP之间的参数，而且它详细地定义了电信互连的补充服务，这是SIP-T所不支持的。</p></li><li><p>SIP-I被制造商和运营商广泛接受，特别是软交换机和会话边界控制器（SBC）供应商。</p></li></ul><h2 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h2><p><a href="https://www.rfc-editor.org/rfc/rfc3261">RFC3261 (Session Initiation Protocol), ITU-T  Q.1912.5(Definition of SIP-I) and RFC3372 (SIP-T)</a><br><a href="https://www.differencebetween.com/difference-between-sip-i-and-sip-t/">Difference Between SIP-I and SIP-T</a></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;\assets\css\APlayer.min.css&quot;&gt;&lt;script src=&quot;\assets\js\APlayer.min.js&quot; cla</summary>
+      
+    
+    
+    
+    <category term="ims" scheme="http://nikohpng.github.io/categories/ims/"/>
+    
+    
+    <category term="signal" scheme="http://nikohpng.github.io/tags/signal/"/>
+    
+  </entry>
   
   <entry>
     <title>janus的admin/api详解</title>
@@ -397,102 +493,6 @@
     
     
     <category term="数组" scheme="http://nikohpng.github.io/tags/%E6%95%B0%E7%BB%84/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>C中fork函数问题记录-fork输出结果不一致</title>
-    <link href="http://nikohpng.github.io/2021/02/21/C_Learn/C%20%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0/C%E4%B8%ADfork%E5%87%BD%E6%95%B0%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95-fork%E8%BE%93%E5%87%BA%E7%BB%93%E6%9E%9C%E4%B8%8D%E4%B8%80%E8%87%B4/"/>
-    <id>http://nikohpng.github.io/2021/02/21/C_Learn/C%20%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0/C%E4%B8%ADfork%E5%87%BD%E6%95%B0%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95-fork%E8%BE%93%E5%87%BA%E7%BB%93%E6%9E%9C%E4%B8%8D%E4%B8%80%E8%87%B4/</id>
-    <published>2021-02-21T12:46:40.000Z</published>
-    <updated>2021-02-21T12:53:26.193Z</updated>
-    
-    <content type="html"><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="\assets\js\Meting.min.js"></script><p>在测试fork特性的时候，用命令行运行与ide中出现完全不同的效果。单独测试fork函数的时候发现，fork成功，但是它会从main函数开始运行。特此记录！</p><h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><ul><li>华为云centos7</li><li>编程ide:vscode+remote</li><li>编译环境：gcc version 4.8.5 20150623 (Red Hat 4.8.5-44)</li></ul><h2 id="代码与结果"><a href="#代码与结果" class="headerlink" title="代码与结果"></a>代码与结果</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;  </span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;  </span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span>  </span></span><br><span class="line"><span class="function"></span>&#123;  </span><br><span class="line">   <span class="keyword">int</span> i=<span class="number">0</span>;  </span><br><span class="line">   <span class="built_in">printf</span>(<span class="string">&quot;i son/pa ppid pid  fpid\n&quot;</span>);  </span><br><span class="line">   /id指当前进程的父进程pid  </span><br><span class="line">   <span class="comment">//pid指当前进程的pid,  </span></span><br><span class="line">   <span class="comment">//fpid指fork返回给当前进程的值  </span></span><br><span class="line">   <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;<span class="number">2</span>;i++)&#123;  </span><br><span class="line">       <span class="keyword">pid_t</span> fpid=fork();  </span><br><span class="line">       <span class="keyword">if</span>(fpid==<span class="number">0</span>)  </span><br><span class="line">           <span class="built_in">printf</span>(<span class="string">&quot;%d child  %4d %4d %4d\n&quot;</span>,i,getppid(),getpid(),fpid);  </span><br><span class="line">       <span class="keyword">else</span>  </span><br><span class="line">           <span class="built_in">printf</span>(<span class="string">&quot;%d parent %4d %4d %4d\n&quot;</span>,i,getppid(),getpid(),fpid);  </span><br><span class="line">   &#125;  </span><br><span class="line">   <span class="keyword">return</span> <span class="number">0</span>;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>vscode结果：</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">i son/pa ppid pid  fpid</span><br><span class="line"><span class="number">0</span> parent <span class="number">26418</span> <span class="number">26424</span> <span class="number">26425</span></span><br><span class="line"><span class="number">1</span> parent <span class="number">26418</span> <span class="number">26424</span> <span class="number">26426</span></span><br><span class="line">i son/pa ppid pid  fpid</span><br><span class="line"><span class="number">0</span> child     <span class="number">1</span> <span class="number">26425</span>    <span class="number">0</span></span><br><span class="line"><span class="number">1</span> parent    <span class="number">1</span> <span class="number">26425</span> <span class="number">26427</span></span><br><span class="line">i son/pa ppid pid  fpid</span><br><span class="line"><span class="number">0</span> parent <span class="number">26418</span> <span class="number">26424</span> <span class="number">26425</span></span><br><span class="line"><span class="number">1</span> child     <span class="number">1</span> <span class="number">26426</span>    <span class="number">0</span></span><br><span class="line">i son/pa ppid pid  fpid</span><br><span class="line"><span class="number">0</span> child     <span class="number">1</span> <span class="number">26425</span>    <span class="number">0</span></span><br><span class="line"><span class="number">1</span> child     <span class="number">1</span> <span class="number">26427</span>    <span class="number">0</span></span><br></pre></td></tr></table></figure><p>命令行输出结果：</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">i son/pa ppid pid  fpid</span><br><span class="line"><span class="number">0</span> parent <span class="number">26622</span> <span class="number">26671</span> <span class="number">26672</span></span><br><span class="line"><span class="number">1</span> parent <span class="number">26622</span> <span class="number">26671</span> <span class="number">26673</span></span><br><span class="line"><span class="number">0</span> child     <span class="number">1</span> <span class="number">26672</span>    <span class="number">0</span></span><br><span class="line"><span class="number">1</span> parent    <span class="number">1</span> <span class="number">26672</span> <span class="number">26674</span></span><br><span class="line"><span class="number">1</span> child     <span class="number">1</span> <span class="number">26673</span>    <span class="number">0</span></span><br><span class="line"><span class="number">1</span> child     <span class="number">1</span> <span class="number">26674</span>    <span class="number">0</span></span><br></pre></td></tr></table></figure><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>目前怀疑是否是vscode的remote造成此原因。结果尚未可知，有待后续研究。</p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;\assets\css\APlayer.min.css&quot;&gt;&lt;script src=&quot;\assets\js\APlayer.min.js&quot; cla</summary>
-      
-    
-    
-    
-    <category term="c" scheme="http://nikohpng.github.io/categories/c/"/>
-    
-    
-    <category term="fork" scheme="http://nikohpng.github.io/tags/fork/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>C 语言中的字节对齐</title>
-    <link href="http://nikohpng.github.io/2021/01/08/C_Learn/C%20%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0/C%E8%AF%AD%E8%A8%80%E4%B8%AD%E7%9A%84%E5%AD%97%E8%8A%82%E5%AF%B9%E9%BD%90/"/>
-    <id>http://nikohpng.github.io/2021/01/08/C_Learn/C%20%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0/C%E8%AF%AD%E8%A8%80%E4%B8%AD%E7%9A%84%E5%AD%97%E8%8A%82%E5%AF%B9%E9%BD%90/</id>
-    <published>2021-01-08T01:49:01.000Z</published>
-    <updated>2022-01-08T13:12:59.649Z</updated>
-    
-    <content type="html"><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="\assets\js\Meting.min.js"></script><p>TODO</p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;\assets\css\APlayer.min.css&quot;&gt;&lt;script src=&quot;\assets\js\APlayer.min.js&quot; cla</summary>
-      
-    
-    
-    
-    <category term="c" scheme="http://nikohpng.github.io/categories/c/"/>
-    
-    
-    <category term="变量" scheme="http://nikohpng.github.io/tags/%E5%8F%98%E9%87%8F/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>C语言中__attribute__的用法</title>
-    <link href="http://nikohpng.github.io/2021/01/08/C_Learn/C%20%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0/C%E8%AF%AD%E8%A8%80%E4%B8%ADC%E8%AF%AD%E8%A8%80%E4%B8%AD__attribute__%E7%9A%84%E7%94%A8%E6%B3%95/"/>
-    <id>http://nikohpng.github.io/2021/01/08/C_Learn/C%20%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0/C%E8%AF%AD%E8%A8%80%E4%B8%ADC%E8%AF%AD%E8%A8%80%E4%B8%AD__attribute__%E7%9A%84%E7%94%A8%E6%B3%95/</id>
-    <published>2021-01-08T01:49:01.000Z</published>
-    <updated>2022-01-08T13:20:41.854Z</updated>
-    
-    <content type="html"><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="\assets\js\Meting.min.js"></script><p>@TODO 后续添加</p><h2 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h2><p><a href="https://www.cnblogs.com/longchang/p/12170622.html">C语言中__attribute__的用法</a></p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;\assets\css\APlayer.min.css&quot;&gt;&lt;script src=&quot;\assets\js\APlayer.min.js&quot; cla</summary>
-      
-    
-    
-    
-    <category term="c" scheme="http://nikohpng.github.io/categories/c/"/>
-    
-    
-    <category term="attribute" scheme="http://nikohpng.github.io/tags/attribute/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>C语言关键字学习</title>
-    <link href="http://nikohpng.github.io/2021/01/08/C_Learn/C%20%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0/C%E8%AF%AD%E8%A8%80%E5%85%B3%E9%94%AE%E5%AD%97%E5%AD%A6%E4%B9%A0/"/>
-    <id>http://nikohpng.github.io/2021/01/08/C_Learn/C%20%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0/C%E8%AF%AD%E8%A8%80%E5%85%B3%E9%94%AE%E5%AD%97%E5%AD%A6%E4%B9%A0/</id>
-    <published>2021-01-08T01:49:01.000Z</published>
-    <updated>2022-01-08T13:12:02.409Z</updated>
-    
-    <content type="html"><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="\assets\js\Meting.min.js"></script><p>主要是熟悉 C 语言中的有关除了基础语法的外的关键字，并讲解一般的使用场景！</p><h2 id="关键字语义"><a href="#关键字语义" class="headerlink" title="关键字语义"></a>关键字语义</h2><table><thead><tr><th>关键字名</th><th>语义</th></tr></thead><tbody><tr><td>#define</td><td>定义一个预处理宏</td></tr><tr><td>#undef</td><td>取消宏的宏</td></tr><tr><td>#if</td><td>编译预处理中的条件命令，相当于 C 语法中的 if 语句</td></tr><tr><td>#ifdef</td><td>判断某个宏是否为定义，若已定义，执行随后的语句</td></tr><tr><td>#ifndef</td><td>与#ifdef相反，判断某个宏是否未被定义</td></tr><tr><td>#elif</td><td>若#if, #ifdef, #ifndef或前面的#elif条件不满足，则执行#elif之后的语句，相当于C语法中的 else-if</td></tr><tr><td>#else</td><td>与#if, #ifdef, #ifndef对应, 若这些条件不满足，则执行#else之后的语句，相当于C语法中的else</td></tr><tr><td>#endif</td><td>#if, #ifdef, #ifndef这些条件命令的结束标志.</td></tr><tr><td>defined</td><td>与#if, #elif配合使用，判断某个宏是否被定义</td></tr></tbody></table><h2 id="ifndef的用法"><a href="#ifndef的用法" class="headerlink" title="#ifndef的用法"></a>#ifndef的用法</h2><p><code>#ifndef</code>的语义是判断某个宏是否未被定义。起到的效果是防止一个源文件两次包含同一个头文件，而不是防止两个源文件包含同一个头文件。</p><ul><li>使用场景：<ul><li>在头文件的声明中加上 <code>#ifndef..#endif</code>，那么同一个源文件无论引用多少次头文件都不会重复。  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> _STDIO_H_</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _STDIO_H_</span></span><br><span class="line"></span><br><span class="line">......</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure></li><li>#ifndef中定义变量出现的问题,  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> AAA</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> AAA</span></span><br><span class="line">...</span><br><span class="line"><span class="keyword">int</span> i;</span><br><span class="line">...</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure><h2 id="defined"><a href="#defined" class="headerlink" title="defined"></a>defined</h2></li></ul></li></ul><p>defined 用来测试某个宏是否被定义。defined(name): 若宏被定义，则返回 1 ，否则返回 0 。 与#ifdef和#ifndef不同之处是，它们可以判断多个条件，而#ifdef和#ifndef只能有一个条件。</p><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">if</span> defined(VAX) &amp;&amp; defined(UNIX) &amp;&amp; !defined(DEBUG) </span></span><br></pre></td></tr></table></figure>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;\assets\css\APlayer.min.css&quot;&gt;&lt;script src=&quot;\assets\js\APlayer.min.js&quot; cla</summary>
-      
-    
-    
-    
-    <category term="c" scheme="http://nikohpng.github.io/categories/c/"/>
-    
-    
-    <category term="关键字" scheme="http://nikohpng.github.io/tags/%E5%85%B3%E9%94%AE%E5%AD%97/"/>
     
   </entry>
   
