@@ -3038,4 +3038,97 @@
         <tag>mod</tag>
       </tags>
   </entry>
+  <entry>
+    <title>FreeSWITCH中mod的状态变化</title>
+    <url>/2023/03/23/freeswitch/FreeSWITCH%E4%B8%ADmod%E7%9A%84%E7%8A%B6%E6%80%81%E5%8F%98%E5%8C%96/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="\assets\js\Meting.min.js"></script><p>本文主要讲述在 endpoint 的 mod 在启动关闭与呼叫、挂断等其中的状态变化内容</p>
+<h2 id="mod-的启动关闭"><a href="#mod-的启动关闭" class="headerlink" title="mod 的启动关闭"></a>mod 的启动关闭</h2><p>此处的状态变化最为简单，只有两个回调函数，分别如下所示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">SWITCH_MODULE_LOAD_FUNCTION(mod_test_load);</span><br><span class="line">SWITCH_MODULE_SHUTDOWN_FUNCTION(mod_test_shutdown);</span><br><span class="line">SWITCH_MODULE_DEFINITION(mod_test, mod_test_load, mod_test_shutdown, <span class="literal">NULL</span>); <span class="comment">// mod_test_runtime</span></span><br></pre></td></tr></table></figure>
+
+<p>一般 runtime 都没用，暂时不明白作用。有个这个定义后，再实现相应的启动关闭函数，如下所示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">SWITCH_MODULE_LOAD_FUNCTION(mod_test_load) &#123;</span><br><span class="line">    <span class="comment">/// 你想要实现内容，宏展开后有如下参数</span></span><br><span class="line">    <span class="comment">/// switch_loadable_module_interface_t **module_interface, switch_memory_pool_t *pool</span></span><br><span class="line">&#125;</span><br><span class="line">SWITCH_MODULE_SHUTDOWN_FUNCTION(mod_janus_shutdown) &#123;</span><br><span class="line">    <span class="comment">/// 你想要实现内容，宏展开后是个 void，没有参数值</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="channel-的状态变化"><a href="#channel-的状态变化" class="headerlink" title="channel 的状态变化"></a>channel 的状态变化</h2><p>channel 的状态变化较为复杂，此处先沿着外呼的流程走一遍所有流程，并会标明调用什么函数发生状态变化，以及状态变化涉及的含义。</p>
+<p>此处先展示所有涉及的状态以及它们分别所属结构体</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">switch_state_handler_table_t</span> test_state_handlers = &#123;</span><br><span class="line">    <span class="comment">/*.on_init */</span> channel_on_init,</span><br><span class="line">    <span class="comment">/*.on_routing */</span> channel_on_routing,</span><br><span class="line">    <span class="comment">/*.on_execute */</span> channel_on_execute,</span><br><span class="line">    <span class="comment">/*.on_hangup */</span> channel_on_hangup,</span><br><span class="line">    <span class="comment">/*.on_exchange_media */</span> channel_on_exchange_media,</span><br><span class="line">    <span class="comment">/*.on_soft_execute */</span> channel_on_soft_execute,</span><br><span class="line">    <span class="comment">/*.on_consume_media */</span> <span class="literal">NULL</span>,</span><br><span class="line">    <span class="comment">/*.on_hibernate */</span> <span class="literal">NULL</span>,</span><br><span class="line">    <span class="comment">/*.on_reset */</span> <span class="literal">NULL</span>,</span><br><span class="line">    <span class="comment">/*.on_park */</span> <span class="literal">NULL</span>,</span><br><span class="line">    <span class="comment">/*.on_reporting */</span> <span class="literal">NULL</span>,</span><br><span class="line">    <span class="comment">/*.on_destroy */</span> channel_on_destroy&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">switch_io_routines_t</span> test_io_routines = &#123;</span><br><span class="line">    <span class="comment">/*.outgoing_channel */</span> channel_outgoing_channel,</span><br><span class="line">    <span class="comment">/*.read_frame */</span> channel_read_frame,</span><br><span class="line">    <span class="comment">/*.write_frame */</span> channel_write_frame,</span><br><span class="line">    <span class="comment">/*.kill_channel */</span> channel_kill_channel,</span><br><span class="line">    <span class="comment">/*.send_dtmf */</span> channel_send_dtmf,</span><br><span class="line">    <span class="comment">/*.receive_message */</span> channel_receive_message,</span><br><span class="line">    <span class="comment">/*.receive_event */</span> channel_receive_event&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//...</span></span><br><span class="line"></span><br><span class="line">test_endpoint_interface-&gt;io_routines = &amp;test_io_routines;</span><br><span class="line">test_endpoint_interface-&gt;state_handler = &amp;test_state_handlers;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>外呼 –&gt; channel_outgoing_channel:</p>
+<ul>
+<li><p>参数如下所示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">switch_call_cause_t</span> <span class="title">channel_outgoing_channel</span><span class="params">(<span class="keyword">switch_core_session_t</span> *session, <span class="keyword">switch_event_t</span> *var_event,</span></span></span><br><span class="line"><span class="function"><span class="params">                                            <span class="keyword">switch_caller_profile_t</span> *outbound_profile,</span></span></span><br><span class="line"><span class="function"><span class="params">                                            <span class="keyword">switch_core_session_t</span> **new_session, <span class="keyword">switch_memory_pool_t</span> **pool,</span></span></span><br><span class="line"><span class="function"><span class="params">                                            <span class="keyword">switch_originate_flag_t</span> flags, <span class="keyword">switch_call_cause_t</span> *cancel_cause)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">                                            &#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>作用：创建媒体流、创建channel、初始化参数等</p>
+</li>
+<li><p>状态变化函数：<code>switch_channel_set_state(channel, CS_INIT);</code></p>
+</li>
+<li><p>未知作用函数：<code>switch_set_flag_locked(tech_pvt, TFLAG_OUTBOUND);</code></p>
+</li>
+</ul>
+</li>
+<li><p>channel_outgoing_channel –&gt; channel_on_init:</p>
+<ul>
+<li><p>参数如下所示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">switch_status_t</span> <span class="title">channel_on_init</span><span class="params">(<span class="keyword">switch_core_session_t</span> *session)</span></span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>作用：一般用户初始化该通呼叫所需要的一些初始化参数</p>
+</li>
+<li><p>返回值：状态值为 <code>SWITCH_STATUS_SUCCESS</code> 将自动进入下个状态，否则将跳过该此呼叫</p>
+</li>
+<li><p>状态变化函数：无</p>
+</li>
+<li><p>未知作用函数：<code>switch_set_flag_locked(tech_pvt, TFLAG_IO);</code></p>
+</li>
+</ul>
+</li>
+<li><p>channel_on_init –&gt; channel_on_routing:</p>
+<ul>
+<li><p>参数如下所示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">switch_status_t</span> <span class="title">channel_on_routing</span><span class="params">(<span class="keyword">switch_core_session_t</span> *session)</span></span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>作用：一般在此处进行路由相关处理，准备编解码器、创建媒体流端口、生成sdp并与被叫方建立连接等工作</p>
+</li>
+<li><p>返回值：状态值为 <code>SWITCH_STATUS_SUCCESS</code> 将自动进入下个状态，否则将跳过该此呼叫</p>
+</li>
+<li><p>状态变化函数：<code>switch_channel_pre_answer(channel)</code> 和 <code>switch_channel_answer(channel)</code></p>
+</li>
+<li><p>未知作用函数：<code>switch_channel_set_flag(channel, CF_AUDIO);</code></p>
+</li>
+</ul>
+</li>
+<li><p>channel_on_routing –&gt; channel_on_execute: (可略)</p>
+</li>
+<li><p>channel_on_hangup:</p>
+<ul>
+<li><p>参数如下所示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">switch_status_t</span> <span class="title">channel_on_hangup</span><span class="params">(<span class="keyword">switch_core_session_t</span> *session)</span></span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>作用：呼叫中断的时候，此处的函数就会被回调，无论是 a-leg 还是 b-leg, 一般用于销毁信令上的一些内容</p>
+</li>
+<li><p>返回值：状态值为 <code>SWITCH_STATUS_SUCCESS</code> 将自动进入下个状态，否则将跳过该此呼叫</p>
+</li>
+<li><p>状态变化函数：<code>switch_channel_hangup(channel, SWITCH_CAUSE_NORMAL_CLEARING);</code></p>
+</li>
+</ul>
+</li>
+<li><p>channel_on_hangup –&gt; channel_on_destroy:</p>
+<ul>
+<li><p>参数如下所示：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">switch_status_t</span> <span class="title">channel_on_destroy</span><span class="params">(<span class="keyword">switch_core_session_t</span> *session)</span></span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>作用：在呼叫被 hangup 完成后被回调，用于销毁初始化的媒体流、端口等</p>
+</li>
+<li><p>返回值：状态值为 <code>SWITCH_STATUS_SUCCESS</code> 将自动进入下个状态，否则将跳过该此呼叫</p>
+</li>
+</ul>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>FreeSWTICH</category>
+      </categories>
+      <tags>
+        <tag>channels</tag>
+      </tags>
+  </entry>
 </search>
