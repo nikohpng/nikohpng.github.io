@@ -3131,4 +3131,168 @@
         <tag>channels</tag>
       </tags>
   </entry>
+  <entry>
+    <title>WebRTC在Mac中的编译</title>
+    <url>/2023/03/30/webrtc/WebRTC%E5%9C%A8Mac%E4%B8%AD%E7%9A%84%E7%BC%96%E8%AF%91/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="\assets\js\Meting.min.js"></script><h1 id="webrtc-在-mac-编译-Mac-与-IOS"><a href="#webrtc-在-mac-编译-Mac-与-IOS" class="headerlink" title="webrtc 在 mac 编译 Mac 与 IOS"></a>webrtc 在 mac 编译 Mac 与 IOS</h1><p>本文将会讲解在 mac 中从拉取代码到打包成 xcframework 的所有步骤，包中包括了ios 与 mac 的所有包。</p>
+<h2 id="设置代理"><a href="#设置代理" class="headerlink" title="设置代理"></a>设置代理</h2><p>编译 WebRTC 全程需要代理软件，所以建议设置好代理软件。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">export http_porxy&#x3D;&quot;http:&#x2F;&#x2F;127.0.0.1:21087&quot;</span><br><span class="line">export https_porxy&#x3D;&quot;https:&#x2F;&#x2F;127.0.0.1:21087&quot;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注意：即使在 MAC 中开启全局代理，仍然需要设置代理。本人编译时，没配置这个有时候出现无法下载外网资源，即使开了全局代理也没用。</p>
+</blockquote>
+<h2 id="安装-depot-tools"><a href="#安装-depot-tools" class="headerlink" title="安装 depot_tools"></a>安装 depot_tools</h2><p>depot_tools 是一套 Google 用来编译 WebRTC 的构建工具，获取 depot_tools 前，请先开启 VPN。</p>
+<p>下载 <a href="https://storage.googleapis.com/chrome-infra/depot_tools.zip">depot_tools</a> 解压到某个目录，然后配置系统环境</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">export PATH=$PWD/depot_tools:$PATH</span><br></pre></td></tr></table></figure>
+
+<h2 id="获取源代码"><a href="#获取源代码" class="headerlink" title="获取源代码"></a>获取源代码</h2><p>获取源代码<strong>不能使用官网的源代码</strong>，必须到 <a href="https://github.com/webrtc-sdk/webrtc">webrtc-sdk</a> 中获取专门为 <a href="https://github.com/flutter-webrtc/flutter-webrtc">flutter-webrtc</a>修改过的源码。<br>获取源码步骤如下所示：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">mkdir webrtc</span><br><span class="line">cd webrtc</span><br><span class="line">touch .gclient</span><br><span class="line">echo &quot;solutions = [</span><br><span class="line">  &#123;</span><br><span class="line">    &quot;name&quot;: &quot;src&quot;,</span><br><span class="line">    &quot;url&quot;: &quot;https://github.com/webrtc-sdk/webrtc.git&quot;,</span><br><span class="line">    &quot;deps_file&quot;: &quot;DEPS&quot;,</span><br><span class="line">    &quot;managed&quot;: False,</span><br><span class="line">    &quot;custom_deps&quot;: &#123;&#125;,</span><br><span class="line">  &#125;,</span><br><span class="line">]</span><br><span class="line">target_os = [&#x27;ios&#x27;]&quot; &gt; .gclient</span><br><span class="line">sudo gclient sync</span><br></pre></td></tr></table></figure>
+
+<h2 id="生成示例代码"><a href="#生成示例代码" class="headerlink" title="生成示例代码"></a>生成示例代码</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">gn gen out/ios --args=&#x27;target_os=&quot;ios&quot; target_cpu=&quot;arm64&quot; is_component_build=false&#x27; --ide=xcode </span><br></pre></td></tr></table></figure>
+
+<h2 id="替换本地编译-Frameworks"><a href="#替换本地编译-Frameworks" class="headerlink" title="替换本地编译 Frameworks"></a>替换本地编译 Frameworks</h2><p>在  flutter-webrtc 的 IOS 目录下面创建  Frameworks 目录，然后修改 podfile 如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># s.dependency &#39;WebRTC-SDK&#39;, &#39;104.5112.02&#39;</span><br><span class="line">  s.ios.vendored_frameworks &#x3D; &#39;Frameworks&#x2F;WebRTC.xcframework&#39;</span><br><span class="line">  s.vendored_frameworks &#x3D; &#39;WebRTC.xcframework&#39;</span><br></pre></td></tr></table></figure>
+<h2 id="异常问题"><a href="#异常问题" class="headerlink" title="异常问题"></a>异常问题</h2><p>在拉取源代码的时候、获取依赖或者编译时可能出现各种奇奇怪怪的问题，下面会对一些奇怪问题进行解释与给出解决方法。</p>
+<ul>
+<li><p>:fatal: early EOF fatal: index-pack failed</p>
+<ul>
+<li>原因：此问题说拉取代码时，容量不够</li>
+<li>解决方法：未知原因导致其存储在缓存空间，只要使用 sudo 权限去执行 gclient sync 即可解决问题</li>
+</ul>
+</li>
+<li><p>下载某个资源时出现 ssl 验证错误。好像是更新 gclient 的时候。</p>
+<ul>
+<li>原因：由于我们挂了代理，不知什么原因导致了 ssl 验证失败</li>
+<li>解决方法：需要 python 安装一个如下所示的内容，建议直接全局搜索 <code>Certificates.command</code> 这个文件所在位置  <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">where python3</span><br><span class="line">sudo python3 install Certificates.command</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>Failed to fetch file gs://chromiumxxxx</p>
+<ul>
+<li>原因：不知道啥原因，反正没法下载，只能自己手动下载了</li>
+<li>解决方法：将其中的 <code>gs://</code> 替换为 <code>https://storage.googleapis.com/</code> 直接下载，然后将其改名为具体文件，放到指定位置下面就行。</li>
+<li>补充：MAC 这边一共有 <code>clang</code>、<code>clang-format</code>、<code>test-fonts.tar.gz</code> 这几个文件没法下载，手动下载即可。其中 <code>test-fonts.tar.gz</code> 下载下来会是个<code>**.tar</code> 文件，只需要改成 <code>test-fonts.tar</code> 放入指定文件夹即可。</li>
+</ul>
+</li>
+<li><p>error at <code>xtest_module_target=&quot;//test:google_test_runner_objc&quot;</code></p>
+<ul>
+<li>原因：目前不知道原因</li>
+<li>解决方法：直接去对应位置注释掉这行依赖，仍然可以使用</li>
+</ul>
+</li>
+<li><p>cpid更新失败代理新的配置方案</p>
+<ul>
+<li>原因：配置了 https 代理的情况下，会对 ssl 进行验证，而由于我们开了代理，这个验证基本会失败</li>
+<li>解决方法：将 https 代理设置成 http 代理就不会出现问题了。<code>export https_porxy=&quot;http://127.0.0.1:21087&quot;</code></li>
+</ul>
+</li>
+<li><p>可能碰到编译错误——fatal error: ‘libavutil/avconfig.h’ file not found:</p>
+<ul>
+<li>原因：目前不知道原因</li>
+<li>解决方法：在 src/third_party/ffmpeg/libavutil/avconfig.h 中创建此文件，并填入如下内容：  <figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* Generated by ffconf */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> AVUTIL_AVCONFIG_H</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> AVUTIL_AVCONFIG_H</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> AV_HAVE_BIGENDIAN 0</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> AV_HAVE_FAST_UNALIGNED 0</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span> <span class="comment">/* AVUTIL_AVCONFIG_H */</span></span></span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h2><p><a href="https://blog.csdn.net/anyRTC/article/details/121225296">IOS技术分享| WebRTC iOS源码下载&amp;编译</a><br><a href="https://juejin.cn/post/7119027229824122888">记录一次WebRTC iOS的源码编译过程</a><br><a href="https://www.cnblogs.com/elesos/p/9914766.html">在windows上编译chrome浏览器Building Chromium for Windows</a><br><a href="https://blog.csdn.net/xzy565143480/article/details/103194085">MacOS Python3.7 出现SSL: CERTIFICATE_VERIFY_FAILED报错解决方案</a><br><a href="https://hackmd.io/@eDUv2-UvT0mEwZSnPiH3Rg/ByYCr2_sL">Build WebRTC library for iOS</a><br><a href="http://myblog.emhct.net.cn/index.php/archives/2016">【webrtc、gclient】cpid更新失败代理新的配置方案</a><br><a href="https://blog.csdn.net/m0_37671478/article/details/100567535">Flutter插件开发，ios添加本地第三方framework</a></p>
+]]></content>
+      <categories>
+        <category>WebRTC</category>
+      </categories>
+      <tags>
+        <tag>WebRTC编译</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>WebRTC在ubuntu中编译android</title>
+    <url>/2023/03/30/webrtc/WebRTC%E5%9C%A8ubuntu%E4%B8%AD%E7%BC%96%E8%AF%91android/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="\assets\js\Meting.min.js"></script><p>本文将会讲解在 ubuntu 中拉取代码 flutter 中的 <a href="https://github.com/webrtc-sdk/webrtc.git">WebRTC</a> 并打包成 android 可以使用的 aar。</p>
+<blockquote>
+<p>注意：编译 Android 的时候，建议在国外的服务器上编译，否则可能出现无法获取各种依赖文件的问题</p>
+</blockquote>
+<h2 id="系统选择"><a href="#系统选择" class="headerlink" title="系统选择"></a>系统选择</h2><p>注意：在编译 android 端的 WebRTC 的时候必须选择 ubuntu，其中最好是采用以下版本</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Ubuntu 14.04 LTS (trusty with EoL April 2022）</span><br><span class="line">Ubuntu 16.04 LTS (xenial with EoL April 2024）</span><br><span class="line">Ubuntu 18.04 LTS (bionic with EoL April 2028）</span><br><span class="line">Ubuntu 20.04 LTS (focal with Eol April 2030)</span><br><span class="line">Ubuntu 20.10 (groovy) </span><br><span class="line">Debian 10 (buster) or later</span><br></pre></td></tr></table></figure>
+<p>如果不是，那么可能遇到一些环境问题，需要手动修改源码</p>
+<h2 id="设置代理"><a href="#设置代理" class="headerlink" title="设置代理"></a>设置代理</h2><p>拉取 WebRTC 全程需要代理软件，所以请先设置好代理软件</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">export http_proxy=http://192.168.101.21:7890</span><br><span class="line">export https_proxy=http://192.168.101.21:7890</span><br></pre></td></tr></table></figure>
+
+<h2 id="安装-depot-tools"><a href="#安装-depot-tools" class="headerlink" title="安装 depot_tools"></a>安装 depot_tools</h2><p>depot_tools 是一套 Google 用来编译 WebRTC 的构建工具，获取 depot_tools 前，请先开启 VPN。</p>
+<p>下载 <a href="https://storage.googleapis.com/chrome-infra/depot_tools.zip">depot_tools</a> 解压到某个目录，然后配置系统环境</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">echo &quot;export PATH=$PWD/depot_tools:$PATH&quot; &gt; $HOME/.bashrc</span><br><span class="line">source $HOME/.bashrc</span><br></pre></td></tr></table></figure>
+
+<h2 id="获取源码"><a href="#获取源码" class="headerlink" title="获取源码"></a>获取源码</h2><p>获取源代码不能使用官网的源代码，必须到 <a href="https://github.com/webrtc-sdk/webrtc">webrtc-sdk</a> 中获取专门为 <a href="https://github.com/flutter-webrtc/flutter-webrtc">flutter-webrtc</a> 修改过的源码。<br>获取源码步骤如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mkdir webrtc</span><br><span class="line">cd webrtc</span><br><span class="line">touch .gclient</span><br><span class="line">echo &quot;solutions &#x3D; [</span><br><span class="line">  &#123;</span><br><span class="line">    &#39;name&#39;: &#39;src&#39;,</span><br><span class="line">    &#39;url&#39;: &#39;https:&#x2F;&#x2F;github.com&#x2F;webrtc-sdk&#x2F;webrtc.git&#39;,</span><br><span class="line">    &#39;deps_file&#39;: &#39;DEPS&#39;,</span><br><span class="line">    &#39;managed&#39;: False,</span><br><span class="line">    &#39;custom_deps&#39;: &#123;&#125;,</span><br><span class="line">  &#125;,</span><br><span class="line">]</span><br><span class="line">target_os &#x3D; [&#39;android&#39;]&quot; &gt; .gclient</span><br><span class="line">gclient sync --nohooks --no-history</span><br></pre></td></tr></table></figure>
+
+<h2 id="源码编译"><a href="#源码编译" class="headerlink" title="源码编译"></a>源码编译</h2><ul>
+<li><p>安装编译依赖：</p>
+  <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">gclient runhooks</span><br><span class="line">./src/build/install-build-deps.sh</span><br><span class="line">./src/build/install-build-deps-android.sh</span><br></pre></td></tr></table></figure></li>
+<li><p>编译 aar 文件：</p>
+  <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vpython3 ./tools_webrtc/android/build_aar.py --build-dir webrtc_android --output ./webrtc_android/libwebrtc.aar --arch armeabi-v7a arm64-v8a x86_64 x86 --extra-gn-args &#x27;is_java_debug=false rtc_include_tests=false rtc_use_h264=false is_component_build=false use_rtti=true rtc_build_examples=false treat_warnings_as_errors=false&#x27;</span><br></pre></td></tr></table></figure>
+<h2 id="异常问题"><a href="#异常问题" class="headerlink" title="异常问题"></a>异常问题</h2></li>
+</ul>
+<p>拉取代码、安装依赖或者编译的时候可能出现一些奇怪的问题，此处将对遇到的问题进行分析以及提出相应的解决方案</p>
+<ul>
+<li>执行<code>./src/build/install-build-deps.sh</code>, 系统版本不适配(即没有按照步骤中的系统版本进行安装)<ul>
+<li>原因：可能你使用的系统版本过高，过低那就没法了，至少要比上诉第一条中系统最低版本高</li>
+<li>解决方案：通过 <code>lsb_release --codename --short</code> 查询系统 <strong>short name</strong>，加入到<code>./src/build/install-build-deps.sh</code>文件下的<code>supported_codenames</code> 变量中即可</li>
+</ul>
+</li>
+<li>编译代码时可能出现缺少 LASTCHANGE 和 LASTCHANGE.committime 文件<ul>
+<li>解决方案：直接前往内网 svn 获取 <a href="svn://10.10.0.1/svnrepos/%E8%81%94%E9%80%9A/WebRTC/Dependency/M92/Win">LASTCHANGE 和 LASTCHANGE.committime</a>即可</li>
+</ul>
+</li>
+<li>编译时出现 <code>Mission sysroot</code> 错误<ul>
+<li>原因：已经很明显，少 sysroot，并且提示里面要求 <strong>run: build/linux/sysroot_scripts/install-sysroot.py –arch=amd64</strong></li>
+<li>解决方案：运行这个脚本即可，注意打开全局代理。如果还不行就手动下载，解压后放到<code>/usr/local/sysroot</code> 目录下，配置下 <code>/etc/profile</code> 指向 <code>sysroot</code> 这个文件夹<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">   mkdir -p sysroot</span><br><span class="line">tar -xvf debian_bullseye_amd64_sysroot.tar.xz -C sysroot</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li>编译时缺少 <strong>llvm-build</strong> 文件夹<ul>
+<li>原因：不知道什么原因就是无法同步下来</li>
+<li>解决方案：在国外服务器上同步下来后，把 <code>llvm-build</code> 文件拷贝下来即可。也可以用点击 <a href="">llvm-build</a>下载</li>
+</ul>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>WebRTC</category>
+      </categories>
+      <tags>
+        <tag>WebRTC编译</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>FreeSWITCH中xml_rpc的使用技巧</title>
+    <url>/2023/03/27/freeswitch/FreeSWITCH%E4%B8%ADxml-rpc%E7%9A%84%E4%BD%BF%E7%94%A8%E6%8A%80%E5%B7%A7/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="\assets\js\Meting.min.js"></script><p>本文主要讲解在实际开发中，可能遇到的使用 xml_rpc 命令过程中的一些内容</p>
+<h2 id="查询-api-的命令"><a href="#查询-api-的命令" class="headerlink" title="查询 api 的命令"></a>查询 api 的命令</h2><p>查看 xml_rpc 中的命令通过如下方式即可，在浏览器中打开如下链接：<code>http://127.0.0.1:8080/webapi/help</code></p>
+<h2 id="调试命令"><a href="#调试命令" class="headerlink" title="调试命令"></a>调试命令</h2><ul>
+<li>通过 curl 调用 lua 程序，并传递参数，其中空格需要用 %20 替换  <figure class="highlight shell"><figcaption><span>script</span></figcaption><table><tr><td class="code"><pre><span class="line">curl --user yw:yw@123 http://127.0.0.1:7652/webapi/luarun?call_phone.lua%20var</span><br></pre></td></tr></table></figure></li>
+<li></li>
+</ul>
+]]></content>
+      <categories>
+        <category>FreeSWTICH</category>
+      </categories>
+      <tags>
+        <tag>xml_rpc</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>WebRTC源码中文件的作用</title>
+    <url>/2023/03/30/webrtc/WebRTC%E6%BA%90%E7%A0%81%E4%B8%AD%E6%96%87%E4%BB%B6%E7%9A%84%E4%BD%9C%E7%94%A8/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="\assets\js\Meting.min.js"></script><p>本文主要讲解在 WebRTC 中一些文件的作用，并且其用途在编译过程中的一些用途。当然这些文件主要是一些配置文件，不包括源码文件</p>
+<h2 id="src-中源码"><a href="#src-中源码" class="headerlink" title="src 中源码"></a>src 中源码</h2><ul>
+<li><code>BUILD.gn</code>：本文件主要包含了各种需要编译的各种源码，其中配置了编译 SDK 时，需要编译的源码。</li>
+<li><code>DEPS</code>：主要包含的是一些依赖文件，例如：openh264、ffmpeg等这类依赖文件</li>
+</ul>
+]]></content>
+      <categories>
+        <category>WebRTC</category>
+      </categories>
+      <tags>
+        <tag>Source</tag>
+      </tags>
+  </entry>
 </search>
