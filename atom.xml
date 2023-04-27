@@ -6,7 +6,7 @@
   <link href="http://nikohpng.github.io/atom.xml" rel="self"/>
   
   <link href="http://nikohpng.github.io/"/>
-  <updated>2023-03-30T13:09:29.983Z</updated>
+  <updated>2023-04-27T12:48:29.861Z</updated>
   <id>http://nikohpng.github.io/</id>
   
   <author>
@@ -15,6 +15,54 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>FreeSWITCH问题分析</title>
+    <link href="http://nikohpng.github.io/2023/04/27/freeswitch/FreeSWITCH%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90/"/>
+    <id>http://nikohpng.github.io/2023/04/27/freeswitch/FreeSWITCH%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90/</id>
+    <published>2023-04-27T12:47:49.000Z</published>
+    <updated>2023-04-27T12:48:29.861Z</updated>
+    
+    <content type="html"><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="\assets\js\Meting.min.js"></script><p>本文主要讲解在实际运维过程中容易出现的问题现象以及导致其出现问题的根本原因，可能附带有解决方法</p><h2 id="30s挂断"><a href="#30s挂断" class="headerlink" title="30s挂断"></a>30s挂断</h2><p>呼叫通没问题，但是会出现 30s 挂断。一般原因有以下几个方面：</p><ul><li>外网端口与内网端口没有一对一映射：端口错误，导致客户端与 FS 的沟通出现网络无法连接问题，可能是 ACK 问题。<ul><li>解决方案：将接口一对一映射</li></ul></li></ul><h2 id="FS与opensip使用tls对接时，2分钟-tcp-断连"><a href="#FS与opensip使用tls对接时，2分钟-tcp-断连" class="headerlink" title="FS与opensip使用tls对接时，2分钟 tcp 断连"></a>FS与opensip使用tls对接时，2分钟 tcp 断连</h2><p>opensips 本身有个参数 <code>tcp_connection_lifetime</code> 用于控制 tcp 的存活时长，此存活时长只能通过与服务端发送数据来延长时间，无法通过 tcp 本身的 <code>keepalive</code> 来进行保活。</p><p>最后，必须通过 fs 端发送 option 来延长 tcp 的存活时间。<br>想要实现在通话中发送 option，那么必须使用 gateway ，并在 gateway 中配置 <code>ping</code> 来发送 option。</p><p>其中，option 存在问题还没开始通话就有 option 进行发送，其中的端口与通话的端口有什么关系呢？根据抓包发现：当前没通话，有新的呼叫创建情况下，有option，那就直接用option的端口。因而网关的option没通话时的option与新来通话后的option是同一个端口。</p><blockquote><p>注意：目前仅仅测试通过了 fs 作为 fresher 进行刷新保活，服务器作为 refresher 时，其 update 无法发送到 fs</p></blockquote>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;\assets\css\APlayer.min.css&quot;&gt;&lt;script src=&quot;\assets\js\APlayer.min.js&quot; cla</summary>
+      
+    
+    
+    
+    <category term="FreeSWTICH" scheme="http://nikohpng.github.io/categories/FreeSWTICH/"/>
+    
+    
+    <category term="Question" scheme="http://nikohpng.github.io/tags/Question/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>WebRTC问题分析内容</title>
+    <link href="http://nikohpng.github.io/2023/04/25/webrtc/WebRTC%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90%E5%86%85%E5%AE%B9/"/>
+    <id>http://nikohpng.github.io/2023/04/25/webrtc/WebRTC%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90%E5%86%85%E5%AE%B9/</id>
+    <published>2023-04-25T12:41:53.000Z</published>
+    <updated>2023-04-25T12:50:37.819Z</updated>
+    
+    <content type="html"><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="\assets\js\Meting.min.js"></script><p>WebRTC 的问题分析分析主要记录一些使用 WebRTC 过程中出现的问题，并且当前没有成体系的内容用于总结，简单的零散分析</p><h2 id="WebRTC-的-oncandidate-时候失败，导致-setLocalDescription-耗时增加"><a href="#WebRTC-的-oncandidate-时候失败，导致-setLocalDescription-耗时增加" class="headerlink" title="WebRTC 的 oncandidate 时候失败，导致 setLocalDescription 耗时增加"></a>WebRTC 的 oncandidate 时候失败，导致 setLocalDescription 耗时增加</h2><ul><li>问题：如标题所诉，由于在收集本地网络环境的，一些网卡（虚拟网卡等）的 ip，不具有连接网络的能力，导致在收集 IP 的时候会出现失败。</li><li>解决方案：监听来自 oncandidate 的事件，检测到有 relay 或 srly 的就可以直接调用 complete  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">session.on(<span class="string">&quot;icecandidate&quot;</span>, <span class="function"><span class="keyword">function</span> (<span class="params">event</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (event.candidate.type === <span class="string">&quot;srflx&quot;</span> &amp;&amp;</span><br><span class="line">        event.candidate.relatedAddress !== <span class="literal">null</span> &amp;&amp;</span><br><span class="line">        event.candidate.relatedPort !== <span class="literal">null</span>) &#123;</span><br><span class="line">        event.ready();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></li><li>查看错误：通过 <code>chrome://webrtc-internals</code> 即可查看 ice 收集失败的时候，对应的 ip 是多少</li></ul><h2 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h2><ul><li><a href="https://stackoverflow.com/questions/61253322/a-40-sec-delay-of-sip-call-initiation-using-jssip-webrtc">A 40 sec delay of SIP call initiation using JSSIP / WebRTC</a></li></ul>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;\assets\css\APlayer.min.css&quot;&gt;&lt;script src=&quot;\assets\js\APlayer.min.js&quot; cla</summary>
+      
+    
+    
+    
+    <category term="WebRTC" scheme="http://nikohpng.github.io/categories/WebRTC/"/>
+    
+    
+    <category term="Question" scheme="http://nikohpng.github.io/tags/Question/"/>
+    
+  </entry>
   
   <entry>
     <title>WebRTC源码中文件的作用</title>
@@ -445,54 +493,6 @@
     
     
     <category term="WebRTC编译" scheme="http://nikohpng.github.io/tags/WebRTC%E7%BC%96%E8%AF%91/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>webrtc源码解析-音频调用流程</title>
-    <link href="http://nikohpng.github.io/2022/01/01/webrtc/webrtc%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-%E9%9F%B3%E9%A2%91%E8%B0%83%E7%94%A8%E6%B5%81%E7%A8%8B/"/>
-    <id>http://nikohpng.github.io/2022/01/01/webrtc/webrtc%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-%E9%9F%B3%E9%A2%91%E8%B0%83%E7%94%A8%E6%B5%81%E7%A8%8B/</id>
-    <published>2022-01-01T12:30:20.000Z</published>
-    <updated>2022-10-22T09:00:17.863Z</updated>
-    
-    <content type="html"><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="\assets\js\Meting.min.js"></script><p>本文主要记录下我阅读 webrtc 时候的其中关于从音频启动 voice-engine 到通过创建 source 获取到数据的整个流程，<br>至于如何通过 source 传输 rtp 有待后续阅读分析。</p><p>本人阅读的代码在 window 端，因而可能更关于 window 的实现</p><h2 id="create-adm"><a href="#create-adm" class="headerlink" title="create adm"></a>create adm</h2><p>整个过程主要是创建 adm (audio device manager) 的过程，这里通过创建获取到了 window 的音频采集能力</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">api&#x2F;create_peerconnection_factory.cc:70 CreateModularPeerConnectionFactory</span><br><span class="line">pc&#x2F;peer_connection_factory.cc:71 PeerConnectionFactory::Create Create</span><br><span class="line">pc&#x2F;peer_connection_factory.cc:85  ConnectionContext::Create Create</span><br><span class="line">pc&#x2F;connection_context.cc:126 ChannelManager::Create Create</span><br><span class="line">pc&#x2F;channel_manager.cc:39 ChannelManager::Init Init</span><br><span class="line">media&#x2F;base&#x2F;media_engine.cc:180 CompositeMediaEngine::Init Init</span><br><span class="line">media&#x2F;engine&#x2F;webrtc_voice_engine.cc:288 webrtc::AudioDeviceModule::Create Create</span><br><span class="line">media&#x2F;modules&#x2F;audio_device&#x2F;audio_device_impl.cc:77 AudioDeviceModule::CreateForTest CreateForTest</span><br><span class="line">media&#x2F;modules&#x2F;audio_device&#x2F;audio_device_impl.cc:81 CreatePlatformSpecificObjects</span><br><span class="line">    media&#x2F;modules&#x2F;audio_device&#x2F;audio_device_impl.cc:81 AudioDeviceWindowsCore::CoreAudioIsSupported end</span><br><span class="line">media&#x2F;modules&#x2F;audio_device&#x2F;audio_device_impl.cc:110 AttachAudioBuffer</span><br><span class="line">media&#x2F;modules&#x2F;audio_device&#x2F;audio_device_impl.cc:313 AttachAudioBuffer</span><br></pre></td></tr></table></figure><h2 id="register-callback"><a href="#register-callback" class="headerlink" title="register callback"></a>register callback</h2><p>通过注册回调的方式将 adm 采集的音频数据，发送给具有 source 接口的回调。这里没有凸显 source，<br>是因为 source 是在后续创建，后续添加吧！</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">media&#x2F;engine&#x2F;webrtc_voice_engine.cc:288 WebRtcVoiceEngine::Init</span><br><span class="line">media&#x2F;modules&#x2F;audio_device&#x2F;audio_device_impl:849 AudioDeviceModuleImpl::RegisterAudioCallback</span><br><span class="line">modules&#x2F;audio_device&#x2F;audio_device_buffer.cc:86 AudioDeviceBuffer::RegisterAudioCallback</span><br><span class="line">modules&#x2F;audio_device&#x2F;audio_device_buffer.cc:261 int32_t AudioDeviceBuffer::DeliverRecordedData</span><br><span class="line">audio&#x2F;audio_transport_impl.cc:107 AudioTransportImpl::RecordedDataIsAvailable</span><br><span class="line">audio&#x2F;audio_transport_impl.cc:176 SendProcessedData</span><br><span class="line">audio&#x2F;audio_transport_impl.cc:190 SendAudioData(audio_sender)</span><br></pre></td></tr></table></figure><h2 id="insertable-stream"><a href="#insertable-stream" class="headerlink" title="insertable stream"></a>insertable stream</h2><p>这里我阅读这里的代码主要原因是为了查看 <code>insertable stream</code> 如何实现，目前还在看中</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">peer_connection_factory:190 PeerConnectionFactory::CreatePeerConnectionOrError PeerConnection::Create</span><br><span class="line">peer_connection.cc:408  PeerConnection::Create pc-&gt;Initialize</span><br><span class="line">peer_connection.cc:620  PeerConnection::Initialize sdp_handler_</span><br><span class="line">peer_connection.cc:1327 PeerConnection::SetLocalDescription SetLocalDescription</span><br><span class="line">sdp_offer_answer.cc:1118 SdpOfferAnswerHandler::SetLocalDescription DoSetLocalDescription</span><br><span class="line">sdp_offer_answer.cc:1859 SdpOfferAnswerHandler::DoSetLocalDescription ApplyLocalDescription</span><br><span class="line">sdp_offer_answer.cc:1246 SdpOfferAnswerHandler::ApplyLocalDescription UpdateSessionState</span><br><span class="line">sdp_offer_answer.cc::2467 SdpOfferAnswerHandler::UpdateSessionState PushdownMediaDescription</span><br><span class="line">sdp_offer_answer.cc:4169 SdpOfferAnswerHandler::PushdownMediaDescription setLocalContent</span><br><span class="line">channel.cc:278 BaseChannel:SetLocalContent SetLocalContent_w</span><br><span class="line">channel.cc:824 VoiceChannel:SetLocalContent_w UpdateLocalStreams_w</span><br><span class="line">channel.cc:604 BaseChannel:UpdateLocalStreams_w AddSendStream</span><br><span class="line">webrtc_voice_engine.cc:1914 WebRtcVoiceMediaChannel:AddSendStream WebRtcAudioSendStream</span><br><span class="line">webrtc_voice_engine.cc:749 WebRtcAudioSendStream:WebRtcAudioSendStream CreateAudioSendStream</span><br><span class="line">call.cc:749 Call:CreateAudioSendStream AudioSendStream</span><br><span class="line">audio_send_stream.cc:100 AudioSendStream:AudioSendStream</span><br><span class="line">channel_send.cc:886 ChannelSend:SetEncoderToPacketizerFrameTransformer</span><br><span class="line">channel_send.cc:905 ChannelSend:InitFrameTransformerDelegate</span><br></pre></td></tr></table></figure>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;\assets\css\APlayer.min.css&quot;&gt;&lt;script src=&quot;\assets\js\APlayer.min.js&quot; cla</summary>
-      
-    
-    
-    
-    <category term="WebRTC" scheme="http://nikohpng.github.io/categories/WebRTC/"/>
-    
-    
-    <category term="WebRTC" scheme="http://nikohpng.github.io/tags/WebRTC/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>win中有用的命令</title>
-    <link href="http://nikohpng.github.io/2022/01/01/system/win%E4%B8%AD%E6%9C%89%E7%94%A8%E7%9A%84%E5%91%BD%E4%BB%A4/"/>
-    <id>http://nikohpng.github.io/2022/01/01/system/win%E4%B8%AD%E6%9C%89%E7%94%A8%E7%9A%84%E5%91%BD%E4%BB%A4/</id>
-    <published>2022-01-01T12:27:09.000Z</published>
-    <updated>2022-01-01T12:29:01.269Z</updated>
-    
-    <content type="html"><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="\assets\js\Meting.min.js"></script><h1 id="win-测试内网中所有连接设备"><a href="#win-测试内网中所有连接设备" class="headerlink" title="win 测试内网中所有连接设备"></a>win 测试内网中所有连接设备</h1><figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> /l %i <span class="keyword">in</span> (<span class="number">1</span>,<span class="number">1</span>,<span class="number">255</span>) <span class="keyword">do</span> <span class="built_in">ping</span> -n <span class="number">1</span> -w <span class="number">60</span> <span class="number">192</span>.<span class="number">168</span>.<span class="number">1</span>.%i | <span class="built_in">find</span> &quot;回复&quot; &gt;&gt; pingall.txt</span><br></pre></td></tr></table></figure>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;\assets\css\APlayer.min.css&quot;&gt;&lt;script src=&quot;\assets\js\APlayer.min.js&quot; cla</summary>
-      
-    
-    
-    
-    <category term="命令行" scheme="http://nikohpng.github.io/categories/%E5%91%BD%E4%BB%A4%E8%A1%8C/"/>
-    
-    
-    <category term="win" scheme="http://nikohpng.github.io/tags/win/"/>
     
   </entry>
   
