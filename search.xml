@@ -1020,6 +1020,10 @@
 <blockquote>
 <p>注意：在这个过程中，必须一直保持代理打开着并保持连接</p>
 </blockquote>
+<blockquote>
+<p>Error: failed to parse desired state (line 2): unknown $setting: “$OverrideInstallMode”.</p>
+</blockquote>
+<p>解决方案：将 <code> ./src/third_party/depot_tools/gclient_scm.py</code> 文件中的 <code>$OverrideInstallMode</code> 注释掉，就不会出现问题。具体原因暂时不明！</p>
 <h2 id="生成-vs-的解决方案"><a href="#生成-vs-的解决方案" class="headerlink" title="生成 vs 的解决方案"></a>生成 vs 的解决方案</h2><p>生成解决方案的时候，采用如下命令：</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd src</span><br><span class="line">gn gen --ide&#x3D;vs2017 out&#x2F;Default</span><br></pre></td></tr></table></figure>
 
@@ -1035,6 +1039,21 @@
 <blockquote>
 <p>注意：将你新下载的内容拷贝到 C 盘中哦！</p>
 </blockquote>
+<h3 id="编译失败"><a href="#编译失败" class="headerlink" title="编译失败"></a>编译失败</h3><blockquote>
+<p>编译时可能会出现 clang 的相关错误，原因是 src\third_party\llvm-build 此文件没有。</p>
+</blockquote>
+<p>解决方案：直接前往内网 svn 获取 <a href="svn://10.10.0.1/svnrepos/联通/WebRTC/Dependency/M92/Win/llvm-build.zip">llvm-build</a>即可。</p>
+<blockquote>
+<p>编译代码时可能出现缺少 LASTCHANGE 和 LASTCHANGE.committime 文件</p>
+</blockquote>
+<p>解决方案：直接前往内网 svn 获取 <a href="svn://10.10.0.1/svnrepos/%E8%81%94%E9%80%9A/WebRTC/Dependency/M92/Win">LASTCHANGE 和 LASTCHANGE.committime</a>即可。</p>
+<blockquote>
+<p>编译 webrtc.lib 出现没有 cursor_unittest_resources.res 文件。只有 webrtc.lib 才会出现，libwebrtc.lib 不会出现，可忽略</p>
+</blockquote>
+<p>出现此问题目前猜测是资源文件没有下载完全导致的，我此次搭建的项目是从同事那里拷贝过来的，可能下载出现了一些问题。具体原因没去仔细研究。</p>
+<p>此次项目主要用于编译 Lib 库文件用于开发，不需要生成测试用例，因而解决方式如下，重新生成没有测试用例的解决方案：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">gn gen --ide&#x3D;vs out&#x2F;Default --args&#x3D;&quot;rtc_include_tests&#x3D;false rtc_build_examples&#x3D;false&quot;</span><br></pre></td></tr></table></figure>
+
 <h2 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h2><p><a href="https://blog.jianchihu.net/webrtc-build-vs2017.html">Windows 平台WebRTC编译-VS2017</a></p>
 <p><a href="https://blog.csdn.net/aaronjny/article/details/79828939">关于 debug 安装</a></p>
 <p><a href="https://www.shangmayuan.com/a/7743c98044a240df8654f5d5.html">windows 平台下载并编译 webrtc 代码（代理）</a></p>
