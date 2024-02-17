@@ -1025,7 +1025,7 @@
 </blockquote>
 <p>解决方案：将 <code> ./src/third_party/depot_tools/gclient_scm.py</code> 文件中的 <code>$OverrideInstallMode</code> 注释掉，就不会出现问题。具体原因暂时不明！</p>
 <h2 id="生成-vs-的解决方案"><a href="#生成-vs-的解决方案" class="headerlink" title="生成 vs 的解决方案"></a>生成 vs 的解决方案</h2><p>生成解决方案的时候，采用如下命令：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd src</span><br><span class="line">gn gen --ide&#x3D;vs2017 out&#x2F;Default</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd src</span><br><span class="line">gn gen --ide&#x3D;vs2017 out&#x2F;Default -v</span><br></pre></td></tr></table></figure>
 
 <h3 id="生成解决方案遇到的问题"><a href="#生成解决方案遇到的问题" class="headerlink" title="生成解决方案遇到的问题"></a>生成解决方案遇到的问题</h3><h4 id="没有gn命令"><a href="#没有gn命令" class="headerlink" title="没有gn命令"></a>没有gn命令</h4><p>很真实！我这个 cmd 环境中没有设置 gn 的环境变量，那么我就直接使用全路径。主要是不容易出错。路径如下所示：</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">E:\workspace\webrtc\source\src\buildtools\win\gn.exe</span><br></pre></td></tr></table></figure>
@@ -1039,7 +1039,10 @@
 <blockquote>
 <p>注意：将你新下载的内容拷贝到 C 盘中哦！</p>
 </blockquote>
-<h3 id="编译失败"><a href="#编译失败" class="headerlink" title="编译失败"></a>编译失败</h3><blockquote>
+<h3 id="编译失败"><a href="#编译失败" class="headerlink" title="编译失败"></a>编译失败</h3><p>按照 <a href="http://66.42.39.54:13280/root/libwebrtc">libwebrtc</a> 中所说，将源码拷贝到 src 目录下面，然后执行如下命令:</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">cd src</span><br><span class="line">ninja -d explain -C out/Default libwebrtc</span><br></pre></td></tr></table></figure>
+
+<blockquote>
 <p>编译时可能会出现 clang 的相关错误，原因是 src\third_party\llvm-build 此文件没有。</p>
 </blockquote>
 <p>解决方案：直接前往内网 svn 获取 <a href="svn://10.10.0.1/svnrepos/联通/WebRTC/Dependency/M92/Win/llvm-build.zip">llvm-build</a>即可。</p>
@@ -3049,7 +3052,19 @@
     <title>FreeSWITCH在Linux下编译模块编译</title>
     <url>/2023/03/22/freeswitch/FreeSWITCH%E5%9C%A8Linux%E4%B8%8B%E7%BC%96%E8%AF%91%E6%A8%A1%E5%9D%97%E7%BC%96%E8%AF%91/</url>
     <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="\assets\js\Meting.min.js"></script><p>本文主要讲解在 Linux 环境下编译 FreeSWITCH 模块时的配置以及所遇到的问题</p>
-<h2 id="Linux-下编译-MOD-的配置"><a href="#Linux-下编译-MOD-的配置" class="headerlink" title="Linux 下编译 MOD 的配置"></a>Linux 下编译 MOD 的配置</h2>]]></content>
+<h2 id="Linux-下编译-MOD-的配置"><a href="#Linux-下编译-MOD-的配置" class="headerlink" title="Linux 下编译 MOD 的配置"></a>Linux 下编译 MOD 的配置</h2><ul>
+<li>在 configure.ac 中配置需要编译模块的 makefile文件，例如：src/mod/endpoints/mod_verto/Makefile  <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">PKG_CHECK_MODULES([HIREDIS], [hiredis &gt;= 0.10.0],[</span><br><span class="line">AM_CONDITIONAL([HAVE_HIREDIS],[true])],[</span><br><span class="line">AC_MSG_RESULT([no]); AM_CONDITIONAL([HAVE_HIREDIS],[false])])</span><br><span class="line"></span><br><span class="line">PKG_CHECK_MODULES([REDIS_PLUS], [redis++ &gt;= 1.3.10],[</span><br><span class="line">AM_CONDITIONAL([HAVE_REDIS_PLUS],[true])],[</span><br><span class="line">AC_MSG_RESULT([no]); AM_CONDITIONAL([HAVE_REDIS_PLUS],[false])])</span><br><span class="line"></span><br><span class="line">src/mod/applications/mod_redis_plus/Makefile</span><br></pre></td></tr></table></figure></li>
+<li>在 modules.conf 中配置允许编译的模块，例如：endpoints/mod_verto</li>
+<li>运行 <code>autoreconf -fiv</code> 重新生成 m4 文件</li>
+<li>通过 rebootstrap.sh or bootstrap.sh 重新生成 configure 编译文件</li>
+</ul>
+<h2 id="关于-Linux-下模块的-Makefile-am-编写事项"><a href="#关于-Linux-下模块的-Makefile-am-编写事项" class="headerlink" title="关于 Linux 下模块的 Makefile.am 编写事项"></a>关于 Linux 下模块的 Makefile.am 编写事项</h2><h2 id="失败问题总结"><a href="#失败问题总结" class="headerlink" title="失败问题总结"></a>失败问题总结</h2><ul>
+<li>无法生成 Makefile.in 文件<ul>
+<li>注意模块位置不要写错了，否则无法生成</li>
+</ul>
+</li>
+</ul>
+]]></content>
       <categories>
         <category>FreeSWTICH</category>
       </categories>
@@ -3331,6 +3346,17 @@
 <blockquote>
 <p>注意：目前仅仅测试通过了 fs 作为 fresher 进行刷新保活，服务器作为 refresher 时，其 update 无法发送到 fs</p>
 </blockquote>
+<h2 id="修改FS的contact"><a href="#修改FS的contact" class="headerlink" title="修改FS的contact"></a>修改FS的contact</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&lt;param name&#x3D;&quot;apply-nat-acl&quot; value&#x3D;&quot;nat.auto&quot;&#x2F;&gt;</span><br><span class="line">&lt;action application&#x3D;&quot;export&quot; data&#x3D;&quot;sip_contact_user&#x3D;$&#123;sip_from_user&#125;&quot; &#x2F;&gt;</span><br></pre></td></tr></table></figure>
+
+<h2 id="FS-修改由客户端刷新-session"><a href="#FS-修改由客户端刷新-session" class="headerlink" title="FS 修改由客户端刷新 session"></a>FS 修改由客户端刷新 session</h2><figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">param</span> <span class="attr">name</span>=<span class="string">&quot;enable-timer&quot;</span> <span class="attr">value</span>=<span class="string">&quot;true&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">param</span> <span class="attr">name</span>=<span class="string">&quot;session-timeout&quot;</span> <span class="attr">value</span>=<span class="string">&quot;1800&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="FS-修改语音舒适噪音问题"><a href="#FS-修改语音舒适噪音问题" class="headerlink" title="FS 修改语音舒适噪音问题"></a>FS 修改语音舒适噪音问题</h2><p>防止hold后一直播放铃音，导致无法unhold。sdp 中也有 cng 相关配置，具体请看 sdp</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">param</span> <span class="attr">name</span>=<span class="string">&quot;suppress-cng&quot;</span> <span class="attr">value</span>=<span class="string">&quot;true&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="FS-回复指定的SIP错误信息"><a href="#FS-回复指定的SIP错误信息" class="headerlink" title="FS 回复指定的SIP错误信息"></a>FS 回复指定的SIP错误信息</h2><pre><code class="lua">local response_code = &quot;500&quot; -- 响应码为500，表示Internal Server Error
+local reason_phrase = &quot;Internal Server Error&quot; -- 响应原因短语
+session:execute(&quot;respond&quot;, response_code .. &quot; &quot; .. reason_phrase)
+···</code></pre>
 ]]></content>
       <categories>
         <category>FreeSWTICH</category>
@@ -3357,6 +3383,311 @@
       </categories>
       <tags>
         <tag>Question</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>cmake的使用记录</title>
+    <url>/2023/07/11/C_Learn/cmake%E7%9A%84%E4%BD%BF%E7%94%A8%E8%AE%B0%E5%BD%95/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="\assets\js\Meting.min.js"></script><p>cmake 在 win 中的编译需要使用的一些配置，主要是记录曾经使用情况</p>
+<h2 id="Release-生成PDB"><a href="#Release-生成PDB" class="headerlink" title="Release 生成PDB"></a>Release 生成PDB</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">set(CMAKE_CXX_FLAGS_RELEASE &quot;$&#123;CMAKE_CXX_FLAGS_RELEASE&#125; &#x2F;Zi&quot;)</span><br><span class="line">set(CMAKE_EXE_LINKER_FLAGS_RELEASE &quot;$&#123;CMAKE_EXE_LINKER_FLAGS_RELEASE&#125; &#x2F;DEBUG &#x2F;OPT:REF &#x2F;OPT:ICF&quot;)</span><br><span class="line">set(CMAKE_SHARED_LINKER_FLAGS_RELEASE &quot;$&#123;CMAKE_SHARED_LINKER_FLAGS_RELEASE&#125; &#x2F;DEBUG &#x2F;OPT:REF &#x2F;OPT:ICF&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>cmake原生中的配置</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">set(CMAKE_CXX_FLAGS_RELEASE &quot;$&#123;CMAKE_CXX_FLAGS_RELWITHDEBINFO&#125;&quot;)</span><br><span class="line">set(CMAKE_EXE_LINKER_FLAGS_RELEASE &quot;$&#123;CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO&#125;&quot;)</span><br><span class="line">set(CMAKE_SHARED_LINKER_FLAGS_RELEASE &quot;$&#123;CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO&#125;&quot;)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><code>CMAKE_CXX_FLAGS_RELEASE</code>: <code>/MD /O2 /Ob2 /DNDBUG </code></p>
+</li>
+<li><p><code>CMAKE_CXX_FLAGS_RELWITHDEBINFO</code>: <code>/MD /O2 /Ob1 /DNDBUG /Zi </code></p>
+</li>
+<li><p><code>CMAKE_SHARED_LINKER_FLAGS_RELEASE</code>: <code>/INCREMENTAL:NO</code></p>
+</li>
+<li><p><code>CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO</code>: <code>/debug /INCREMENTAL</code></p>
+</li>
+<li><p><code>/Zi</code>: 调试信息不包含在对象文件或可执行文件中，这使得这些文件最小</p>
+</li>
+<li><p><code>/MD</code>: 动态运行时依赖库， /MT 是静态运行时库</p>
+</li>
+<li><p><code>/O2</code>: O2 会尝试更多的寄存器级的优化以及指令级的优化，它会在编译期间占用更多的内存的编译时间</p>
+</li>
+<li><p><code>/O1</code>: O1 优化会消耗少得多的编译时间。主要对代码的分支，常量以及表达式等进行优化</p>
+</li>
+<li><p><code>/O3</code>: 在 O2 基础上进行更多的优化，例如使用伪寄存器网络，普通函数的内联以及针对循环的更多优化</p>
+</li>
+<li><p><code>/O0</code>: 不做任何优化，默认编译选项</p>
+</li>
+<li><p><code>/OPT:REF</code>: 清除从未引用的函数和数据</p>
+</li>
+<li><p><code>/OPT:ICF</code>: 从链接器中删除冗余的 COMAT</p>
+</li>
+<li><p><code>/INCREMENTAL</code>: debug 的情况下默认是这个选项</p>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>cmake</category>
+      </categories>
+      <tags>
+        <tag>cmake</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Sip协议中的一些概念</title>
+    <url>/2023/12/24/freeswitch/Sip%E5%8D%8F%E8%AE%AE%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="\assets\js\Meting.min.js"></script><p>本文主要介绍 SIP 协议中的一些缩写字符的含义，这些缩写在阅读 Sofia-sip 的代码时常有出现</p>
+<h2 id="Sip-缩写字符"><a href="#Sip-缩写字符" class="headerlink" title="Sip 缩写字符"></a>Sip 缩写字符</h2><ul>
+<li><p>线性空白（Linear White Space，简称LWS）: 位于文本字符序列中的空白字符，包括空格、制表符和换行符等。<br>在计算机编程中，线性空白通常用来描述文本中字符之间的间距，包括但不限于字母、数字、标点符号等。<br>线性空白与非线性空白（Non-Linear White Space，简称NLWS）相对，非线性空白一般指符号或标点之间的间距，如句子结束的标点符号与下一句的起始字母之间的间隔</p>
+</li>
+<li><p>CRLF: 换行符</p>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>freeswitch</category>
+      </categories>
+      <tags>
+        <tag>Sip</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>阅读SIP协议观后感</title>
+    <url>/2024/01/01/freeswitch/%E9%98%85%E8%AF%BBSIP%E5%8D%8F%E8%AE%AE%E8%A7%82%E5%90%8E%E6%84%9F/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="\assets\js\Meting.min.js"></script><p>本文主要记录阅读 SIP rfc3261 文档的一些所思所考，不会对其进行整理分类，并且存在跳跃性</p>
+<h2 id="生成-SIP-响应"><a href="#生成-SIP-响应" class="headerlink" title="生成 SIP 响应"></a>生成 SIP 响应</h2><ul>
+<li>8.2.6</li>
+<li>除了 invite 外需要生成临时响应，其它响应应该立即响应</li>
+<li>生成的临时响应，请求中的时间戳应该直接复制到响应中。如果响应慢就需要将延迟时间以 s 为单位，将时间生成在响应中</li>
+<li>响应的 Call-ID、CSeq、VIA的顺序必须相同。除了 100，其它响应的 uri 内容必须相同，并且需要添加一个 tag，用于 dialog。</li>
+</ul>
+<h2 id="事务的解读"><a href="#事务的解读" class="headerlink" title="事务的解读"></a>事务的解读</h2><p>事务的分为客户端事务与服务器事务，客户端事务发送请求，服务器事务发送响应。</p>
+<p>无状态代理不包含客户端事务或服务器事务。</p>
+<ul>
+<li>200(Ok)的ack作用：主要为了确保 200ok 能够正常发送到 UAC。如果后续不发送 ACK，那么服务端会不断发送，并且在三分钟后断开连接<ul>
+<li>疑问：为啥 200 ok 的 ack 作为自己单独的事务？</li>
+<li>解答：这样设计的原因是保证送达到UAC，并且如果没有回复 ACK，那么 UAS 将会重传</li>
+</ul>
+</li>
+<li>客户端事务：客户端事务的主要负责将接收到的响应传递给 TU, 并过滤重传与不允许的传递。对于 invite 的请求，用于生成 ACK<ul>
+<li>疑问：TU 与客户端事务有什么区别吗</li>
+<li>解答：客户端是TU 与 传输层的中间层</li>
+</ul>
+</li>
+<li>服务器事务：服务器事务的目的是接收来自传输层的请求并将其传递给TU，服务器事务过滤来自网络的任何请求重传。<br>服务器事务接受来自TU的响应，并将它们传递到传输层，以便通过网络进行传输。在INVITE事务的情况下，它会吸收除2xx响应之外的任何最终响应的ACK请求。</li>
+<li>200ok与ack的生成： 都由 UA 核心来处理<ul>
+<li>疑问：前面说客户端事务生成ack,现在又说 UA 核心来处理，不明白</li>
+<li>解释：这里的由核心来处理指的是重传由核心处理。</li>
+</ul>
+</li>
+<li>on-INVITE client transaction：这是没有 ack 的事务。如果需要 ack 的话，需要 tu 直接生成一个 ack?</li>
+</ul>
+<h3 id="客户端事务"><a href="#客户端事务" class="headerlink" title="客户端事务"></a>客户端事务</h3><ul>
+<li>客户端事务状态机： invite 客户端事务与非 invite 客户端事务<ul>
+<li>特点：invite 客户端事务发送延迟长，需要三方握手；非 invite 事务需要立即响应</li>
+<li>注意：如果 TU 希望发送 ACK，它将一个 ACK 直接传递给传输层进行传输</li>
+</ul>
+</li>
+</ul>
+<h4 id="invite-客户端事务"><a href="#invite-客户端事务" class="headerlink" title="invite 客户端事务"></a>invite 客户端事务</h4><p>invite 事务由发送 invite、服务器事务响应、客户端事务响应ack组成。<br>其中 invite 发出后在 t1（默认值：500ms） 重发，除非接受到 1xx 响应，否则就增加两倍的 t1 进行重传。<br>最终，服务器事务发出最终响应，并有客户端事务发送 ack 用于终止重传</p>
+<ul>
+<li>形式描述<ul>
+<li>invite 的客户端事务初始状态为 “Calling”<ul>
+<li>不可靠传输启动定时器 A(t1)，可靠传输不需要启动。事务启动定时器 B(64*t1) 控制事务超时</li>
+<li>超时后重传必须在 “calling” 状态下进行，并且传输时间是 2*t1</li>
+<li>如果定时器 B 触发后任然处于 “calling”, 则通知 TU 超时，并不生成 ack，然后进入 “Terminated” 状态</li>
+</ul>
+</li>
+<li>当接收到临时响应是，状态改为 “Proceeding”。后续的临时响应需要传递给 TU<ul>
+<li>当处于 “Calling” 或 “Proceeding” 状态下，接收到 300-699 响应必须转换为 “Completed”</li>
+<li>接收到服务器事务的响应后，生成 ack 并传输到原始请求发送到的相同的地址、端口和 transport</li>
+<li>当进入 “Completed” 时，启动定时器 D, 对于不可靠传输值至少为 32 秒，可靠传输置为 0。这个值等于服务器事务定时器 H(64*T1)</li>
+<li>新接收到的重新响应不能传递给 TU</li>
+</ul>
+</li>
+<li>定时器 D 在客户端事务处于 “Completed” 状态时触发，客户端事务必须移动到 “Terminated”<ul>
+<li>当处于 “Calling” 或 “Proceeding” 状态下，接收 2xx 响应必须导致客户端事务进入 “Terminated” 状态，并且必须将响应传递到TU</li>
+<li>Proxy 响应 200 为传递给下一跳，客户端事务生成 ack</li>
+<li>客户端事务必须在进入 “Terminated” 状态的瞬间被销毁。</li>
+<li>注意：如何没匹配到合适的客户端事务，则传递到 core</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>ack 的构造<ul>
+<li>Call-ID、From 和 Request-URI 必须和原始请求相同</li>
+<li>To 必须等于被确定的响应中的 To 字段</li>
+<li>ACK 必须包含单一的 Via 报头字段，这个字段必须等于原始的顶部 Via 报头字段</li>
+<li>如果 2xx 中有 Route 字段，则这些也要出现在 ACK 报头中</li>
+<li>注意：invite 响应 415，则可以在 ACK 中放置 body 内容</li>
+</ul>
+</li>
+</ul>
+<h4 id="非-INVITE-客户端事务"><a href="#非-INVITE-客户端事务" class="headerlink" title="非 INVITE 客户端事务"></a>非 INVITE 客户端事务</h4><p>非 INVITE 客户端事务超时 t1 后重传，但是在接受到临时或最终响应后，以 t2 为间隔继续传输消息。</p>
+<blockquote>
+<p>疑问：按照标准文档，按照 t2 继续传输消息，是为了确保交付最后响应。服务器发送了一个请求后，传输在终止？</p>
+</blockquote>
+<p>非 INVITE 客户端事务的 200ok 不会响应 ACK。</p>
+<ul>
+<li>形式描述：<ul>
+<li>发起事务请求，进入 “Trying” 状态<ul>
+<li>启动定时器 F(64<em>T1) 。如果是不可靠传输，客户端事务必须设置定时器 E(T1)，以MIN(2</em>T1,T2)，T2 默认为 4s</li>
+<li>如果定时器 F 触发，仍处于 “Trying”，通知 TU 超时，然后进入 “Terminated” 状态</li>
+<li>如果在 “Trying” 状态下收到最终响应(200-699)，则传递给 TU，事务转换为 “Completed” 状态</li>
+</ul>
+</li>
+<li>当在 “Trying” 状态下收到临时响应，则转为 “Proceeding” 状态<ul>
+<li>如果定时器 E 在 “Proceeding” 状态下被触发，请求需要被重传，定时器 E 重置为 T2 秒</li>
+<li>如果定时器 F 在 “Proceeding” 状态下被触发，通知 TU 超时，然后进入 “Terminated” 状态</li>
+<li>如果在 “Proceeding” 状态下收到最终响应(200-699)，则传递给 TU，事务转换为 “Completed” 状态</li>
+</ul>
+</li>
+<li>当进入 “Completed” 时，启动定时器 K, 对于不可靠传输值 T4 秒，可靠传输置为 0。<ul>
+<li>T4表示网络清除客户机和服务器事务之间的消息所需的时间。缺省值为5s</li>
+<li>如果定时器 K 在此状态下触发，客户端事务必须转换到 “Terminated” 状态。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>匹配响应给对应客户端事务<ul>
+<li>响应消息的 Via 头字段的 Branch 参数相同，则匹配</li>
+<li>CSeq报头字段中的方法参数与创建事务的请求的方法匹配。用于 CANCEL，CANCEL 会新生成一个事务</li>
+</ul>
+</li>
+<li>异常处理<ul>
+<li>当传输发送错误时，立即想 TU 响应错误，并直接切换到 “Terminated” 状态</li>
+</ul>
+</li>
+</ul>
+<h3 id="服务器事务"><a href="#服务器事务" class="headerlink" title="服务器事务"></a>服务器事务</h3><p>服务器事务是在接收到请求时由核心创建。</p>
+<h4 id="INVITE-服务器事务"><a href="#INVITE-服务器事务" class="headerlink" title="INVITE 服务器事务"></a>INVITE 服务器事务</h4><ul>
+<li><p>形式描述：</p>
+<ul>
+<li><p>Proceeding 收到重传请求，那么需要获取 TU 给的最新的 trying 进行重传</p>
+<ul>
+<li>Proceeding 状态下 TU 向服务器事务传递 2xx 响应，服务器事务必须传出去，当然重传由 TU 负责，服务器事务状态转为 Terminated</li>
+<li>Proceeding 状态下 TU 向服务器事务传递 300-699，必须传出去，服务器事务状态转为 Completed。不可靠传输定时器 G(T1) 触发，可靠传输，定时器不触发。</li>
+</ul>
+</li>
+<li><p>Completed 进入后，定时器 H(64*T1) 必须启动，此定时器决定了重传超时时间。</p>
+<ul>
+<li>如果定时器 G 触发，则将继续重传，定时器 G 时间为  MIN(2*T1, T2)</li>
+<li>Completed 状态下，接收到重传请求应该进行重传</li>
+<li>Completed 状态下，收到了 ACK，则转为 Confirmed。并且定时器 G 被忽略，任何重传都会停止</li>
+<li>Completed 状态下，定时器 H 被激活，则服务器事务转为 Terminated 状态，并通知 TU 事务失败。</li>
+</ul>
+</li>
+<li><p>Confirmed 主要用于吸收多余的 ACK。</p>
+<ul>
+<li>当进入该状态时，定时器 I 在 T4 秒内触发，对于不可靠的传输，定时器 I 为 0 秒。</li>
+<li>一旦定时器触发，则转为 Terminated 状态</li>
+</ul>
+</li>
+<li><p>一旦事务处于“终止”状态，它必须立即销毁。与客户端事务一样，这需要确保对INVITE的2xx响应的可靠性。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="非-INVITE-服务器事务"><a href="#非-INVITE-服务器事务" class="headerlink" title="非 INVITE 服务器事务"></a>非 INVITE 服务器事务</h4><ul>
+<li>形式描述：<ul>
+<li>Trying 状态下，初始化走这个状态并且任何重传都将丢弃<ul>
+<li>TU 向服务器事务传输响应，则转为 Proceeding 状态</li>
+</ul>
+</li>
+<li>Proceeding 状态下，所有 TU 传输过来的内容，都需要全部通过传输层传输出去<ul>
+<li>Proceeding 接收到请求的重传，则必须将最新发送临时响应重传出去</li>
+<li>Proceeding 状态下，TU 向服务器事务传递最终响应(200-699), 则事务必须进入 Completed 状态</li>
+</ul>
+</li>
+<li>Completed 状态必须启动定时器 J（64*T1），不可靠为 0 秒<ul>
+<li>TU 传递给服务器事务的任何其他最终响应必须在处于 Completed 状态时丢弃</li>
+<li>服务器事务保持这个状态，直到定时器 J 触发，转为 Terminated 状态</li>
+</ul>
+</li>
+<li>服务器事务必须在进入 Terminated 状态的瞬间被销毁。</li>
+</ul>
+</li>
+</ul>
+<h3 id="事务的的匹配"><a href="#事务的的匹配" class="headerlink" title="事务的的匹配"></a>事务的的匹配</h3><p>在 VIA 中有 z9hG4bK 字符，通过魔法字符进行匹配。没有就采用 Request-URI, To tag, From tag, Call-ID, CSeq, and top Via header<br>匹配对应的 事务。</p>
+]]></content>
+      <categories>
+        <category>freeswitch</category>
+      </categories>
+      <tags>
+        <tag>sip</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Sofia发送subscriber的源码解析</title>
+    <url>/2023/12/23/freeswitch/Sofia%E5%8F%91%E9%80%81subscriber%E7%9A%84%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="\assets\js\Meting.min.js"></script><p>本文将对 sofia 发送 subscriber 这个信令进行源码分析其中会对一些涉及到的其它源码进行解析，用以后续学习</p>
+<h2 id="Sofia-的-handle"><a href="#Sofia-的-handle" class="headerlink" title="Sofia 的 handle"></a>Sofia 的 handle</h2><p>这里对 handle 进行一定的解释。这个 handle 用于管理向谁发送什么样的数据，这个谁一般指定 uac 。 一个 handle 会生成一个新的 call-id，产生一个新的 session。</p>
+<ul>
+<li><code>nua_handle_destroy()</code>: 用于销毁这个 handle。<ul>
+<li>小知识：FreeSWITCH 一般在创建后 <code>nua_handle_bind(fnh, &amp;mod_sofia_globals.destroy_private)</code>，后续不用后会自动销毁, 这个销毁主要依赖于 our_sofia_event_callback<br>中的以下代码：<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> ((sofia_private &amp;&amp; sofia_private == &amp;mod_sofia_globals.destroy_private)) &#123;</span><br><span class="line">        nua_handle_bind(nh, <span class="literal">NULL</span>);</span><br><span class="line">        nua_handle_destroy(nh);</span><br><span class="line">        nh = <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><code>nua_handle_bind</code>: 绑定给回调函数一个上下文。在发生 sip 的状态机变化的时候，nua_create 注册的回调函数会回调，其中的会带有这个绑定的值。解绑传值为 NULL</li>
+<li><code>nua_handle_ref</code>: 增加了 handle 的 sub_ref, 未知</li>
+<li><code>nua_handle_unref</code>: 减少了 handle 的 sub_ref，未知<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">nua.c:304 </span><br></pre></td></tr></table></figure>
+<h2 id="Sofia-的-subscribe-流程"><a href="#Sofia-的-subscribe-流程" class="headerlink" title="Sofia 的 subscribe 流程"></a>Sofia 的 subscribe 流程</h2></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">nua.c:701 nua_subscribe NUA_SIGNAL(nh, nua_r_subscribe, tag, value)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>freeswitch</category>
+      </categories>
+      <tags>
+        <tag>Sofia</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Sofia中的一些概念</title>
+    <url>/2023/12/23/freeswitch/Sofia%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="\assets\js\Meting.min.js"></script><p>本文主要对 Sofia 中的一些概念进行分析与解释，方便进行源码阅读。</p>
+<h2 id="Sofia-概念"><a href="#Sofia-概念" class="headerlink" title="Sofia 概念"></a>Sofia 概念</h2><h3 id="事件循环Event-loop-与根对象-root-object"><a href="#事件循环Event-loop-与根对象-root-object" class="headerlink" title="事件循环Event loop 与根对象 root object"></a>事件循环Event loop 与根对象 root object</h3><ul>
+<li>NUA以事件反应器模式(也称为分发及通知模式)驱动事件系统(请参考[Using Design Patterns to Develop Reusable Object-oriented Communication Software, D.C. Schmidt, CACM October ‘95, 38(10): 65-74]一书)。<br>Sofia以任务作为编程模型的基本执行单元。根据编程模型，程序可以请求事件循环在特定事件触发时调用回调函数。具体事件包括I/O激活，定时器或其它任务传递的异步消息。</li>
+<li>root 对象是应用软件中描述一个任务的句柄。<ul>
+<li>透视事件的另一种方式是：root对象描述任务的主事件循环。通过root对象，任务代码可以访问它的上下文信息(magic)和线程同步，比如说等待对象、定时器，消息。</li>
+</ul>
+</li>
+<li>使用NUA服务的应用必须创建一个root对象，并设置处理NUA事件的回调函数。<ul>
+<li>调用 <code>su_root_create()</code>创建root对象，调用<code>nua_create()</code>函数注册回调函数。root 对象的数据类型是 su_root_t。</li>
+</ul>
+</li>
+</ul>
+<h3 id="Magic"><a href="#Magic" class="headerlink" title="Magic"></a>Magic</h3><ul>
+<li>magic 是一种描述上下文指针的术语，应用程序可以把它绑定到Sofia栈的各种对象上（比如说root对象和操作句柄）。当主事件循环调用注册的回调函数时，上下文指针会回传给应用层代码。<br>Sofia栈保留回调函数调用之间的上下文信息。应用层可以利用上下文信息存储处理事件所需要的任何信息</li>
+</ul>
+<h3 id="内存处理"><a href="#内存处理" class="headerlink" title="内存处理"></a>内存处理</h3><ul>
+<li>给定的任务需要分配许多小块内存时，使用home-based内存管理机制会很便利。内存通过home对象分配，它维护所有内存块的引用信息。当home对象释放时，所有相关内存一并释放。这个机制简化了应用逻辑，因为应用层代码不需要跟踪内存块的分配记录，也不需要独立释放每一个内存块。<br>使用NUA服务的应用程序可以使用SU库提供的内存管理服务，但这不是强制要求的。</li>
+</ul>
+<h2 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h2><ul>
+<li><a href="https://blog.csdn.net/yetyongjin/article/details/105839864">Sofia “nua”模块–高层UA库</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>freeswitch</category>
+      </categories>
+      <tags>
+        <tag>Sofia</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>powershell安装配置内容</title>
+    <url>/2023/06/22/system/powershell%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE%E5%86%85%E5%AE%B9/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="\assets\js\Meting.min.js"></script><h2 id="PowerShell-配置脚本"><a href="#PowerShell-配置脚本" class="headerlink" title="PowerShell 配置脚本"></a>PowerShell 配置脚本</h2><figure class="highlight ps"><table><tr><td class="code"><pre><span class="line"><span class="built_in">Import-Module</span> DirColors</span><br><span class="line"><span class="built_in">Set-Alias</span> bb <span class="string">&quot;busybox&quot;</span> </span><br><span class="line"><span class="built_in">Set-Alias</span> vim <span class="string">&quot;nvim&quot;</span></span><br><span class="line"><span class="built_in">Set-Alias</span> vi <span class="string">&quot;nvim&quot;</span></span><br><span class="line"><span class="built_in">Set-Alias</span> open <span class="string">&quot;explorer.exe&quot;</span></span><br><span class="line"><span class="built_in">Set-Alias</span> which <span class="string">&quot;gcm&quot;</span></span><br><span class="line"><span class="built_in">Set-Alias</span> vscode <span class="string">&quot;code&quot;</span></span><br><span class="line"><span class="built_in">Set-Alias</span> ll <span class="string">&quot;ls&quot;</span></span><br><span class="line"><span class="built_in">Set-Alias</span> android <span class="string">&quot;D:\Install\IDE\Android Studio\bin\studio64.exe&quot;</span></span><br><span class="line"><span class="built_in">Set-Alias</span> yd <span class="string">&quot;C:\Users\heping\Documents\WindowsPowerShell\yd.ps1&quot;</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">locate</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable">$args</span>[<span class="number">0</span>].StartsWith(<span class="string">&quot;-&quot;</span>)) &#123;</span><br><span class="line">        D:\Install\Manager\Everything\Everything.exe <span class="variable">$args</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        D:\Install\Manager\Everything\Everything.exe <span class="literal">-s</span> <span class="variable">$args</span>[<span class="number">0</span>]</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="安装的软件"><a href="#安装的软件" class="headerlink" title="安装的软件"></a>安装的软件</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">scoop install busybox</span><br><span class="line">scoop install sudo</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="配置内容"><a href="#配置内容" class="headerlink" title="配置内容"></a>配置内容</h2><ul>
+<li>busybox 软链接配置<figure class="highlight bat"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> <span class="variable">%%i</span> <span class="keyword">in</span> (ar, arch, ash, awk, base64, basename, bash, bunzip2, bzcat, bzip2, cal, cat, chmod, cksum, ^</span><br><span class="line">          clear, cmp, comm, cp, cpio, cut, <span class="built_in">date</span>, dc, dd, df, diff, dirname, dos2unix, dpkg, dpkg-deb, du, <span class="built_in">echo</span>, ed,^</span><br><span class="line">          egrep, env, expand, expr, factor, false, fgrep, <span class="built_in">find</span>, fold, fsync, ftpget, ftpput, getopt, grep, groups,^</span><br><span class="line">          gunzip, gzip, hd, head, hexdump, iconv, id, ipcalc, kill, killall, less, link, ln, logname, ls, lzcat, lzma,^</span><br><span class="line">          lzop, lzopcat, man, md5sum, <span class="built_in">mkdir</span>, mktemp, mv, nc, nl, od, paste, patch, pgrep, pidof, pipe_progress, pkill,^</span><br><span class="line">          printenv, printf, ps, pwd, readlink, realpath, reset, rev, rm, <span class="built_in">rmdir</span>, rpm, rpm2cpio, sed, seq, sh, sha1sum,^</span><br><span class="line">          sha256sum, sha3sum, sha512sum, shred, shuf, sleep, <span class="built_in">sort</span>, split, ssl_client, stat, strings, su, sum, tac, tail,^</span><br><span class="line">          tar, tee, test, timeout, touch, tr, true, truncate, ts, ttysize, uname, uncompress, unexpand, uniq, unix2dos,^</span><br><span class="line">          unlink, unlzma, unlzop, unxz, unzip, usleep, uudecode, uuencode, vi, watch, wc, wget, which, whoami, whois,^</span><br><span class="line">          xargs, xxd, xz, xzcat, yes, zcat)^</span><br><span class="line">  <span class="keyword">do</span> mklink C:\Windows\System32\<span class="variable">%%i</span>.exe C:\Windows\System32\busybox.exe</span><br><span class="line"><span class="keyword">for</span> <span class="variable">%%i</span> <span class="keyword">in</span> (ar, arch, ash, awk, base64, basename, bash, bunzip2, bzcat, bzip2, cal, cat, chmod, cksum, ^</span><br><span class="line">             clear, cmp, comm, cp, cpio, cut, <span class="built_in">date</span>, dc, dd, df, diff, dirname, dos2unix, dpkg, dpkg-deb, du, <span class="built_in">echo</span>, ed,^</span><br><span class="line">             egrep, env, expand, expr, factor, false, fgrep, <span class="built_in">find</span>, fold, fsync, ftpget, ftpput, getopt, grep, groups,^</span><br><span class="line">             gunzip, gzip, hd, head, hexdump, iconv, id, ipcalc, kill, killall, less, link, ln, logname, ls, lzcat, lzma,^</span><br><span class="line">             lzop, lzopcat, man, md5sum, <span class="built_in">mkdir</span>, mktemp, mv, nc, nl, od, paste, patch, pgrep, pidof, pipe_progress, pkill,^</span><br><span class="line">             printenv, printf, ps, pwd, readlink, realpath, reset, rev, rm, <span class="built_in">rmdir</span>, rpm, rpm2cpio, sed, seq, sh, sha1sum,^</span><br><span class="line">             sha256sum, sha3sum, sha512sum, shred, shuf, sleep, <span class="built_in">sort</span>, split, ssl_client, stat, strings, su, sum, tac, tail,^</span><br><span class="line">             tar, tee, test, timeout, touch, tr, true, truncate, ts, ttysize, uname, uncompress, unexpand, uniq, unix2dos,^</span><br><span class="line">             unlink, unlzma, unlzop, unxz, unzip, usleep, uudecode, uuencode, vi, watch, wc, wget, which, whoami, whois,^</span><br><span class="line">             xargs, xxd, xz, xzcat, yes, zcat)^</span><br><span class="line">rm C:\Windows\System32\b<span class="variable">%%i</span>.exe</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Shell</category>
+      </categories>
+      <tags>
+        <tag>PowerShell</tag>
       </tags>
   </entry>
 </search>

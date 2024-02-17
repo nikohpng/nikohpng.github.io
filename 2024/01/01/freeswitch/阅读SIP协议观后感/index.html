@@ -1,0 +1,306 @@
+<!DOCTYPE html><html lang="zh-Hans" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>阅读SIP协议观后感 | hpng</title><meta name="description" content="本文主要记录阅读 SIP rfc3261 文档的一些所思所考，不会对其进行整理分类，并且存在跳跃性 生成 SIP 响应 8.2.6 除了 invite 外需要生成临时响应，其它响应应该立即响应 生成的临时响应，请求中的时间戳应该直接复制到响应中。如果响应慢就需要将延迟时间以 s 为单位，将时间生成在响应中 响应的 Call-ID、CSeq、VIA的顺序必须相同。除了 100，其它响应的 uri 内"><meta name="keywords" content="sip"><meta name="author" content="hpng"><meta name="copyright" content="hpng"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://nikohpng.github.io/2024/01/01/freeswitch/%E9%98%85%E8%AF%BBSIP%E5%8D%8F%E8%AE%AE%E8%A7%82%E5%90%8E%E6%84%9F/"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//fonts.googleapis.com" crossorigin="crossorigin"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="preconnect" href="//zz.bdstatic.com"/><meta property="og:type" content="article"><meta property="og:title" content="阅读SIP协议观后感"><meta property="og:url" content="http://nikohpng.github.io/2024/01/01/freeswitch/%E9%98%85%E8%AF%BBSIP%E5%8D%8F%E8%AE%AE%E8%A7%82%E5%90%8E%E6%84%9F/"><meta property="og:site_name" content="hpng"><meta property="og:description" content="本文主要记录阅读 SIP rfc3261 文档的一些所思所考，不会对其进行整理分类，并且存在跳跃性 生成 SIP 响应 8.2.6 除了 invite 外需要生成临时响应，其它响应应该立即响应 生成的临时响应，请求中的时间戳应该直接复制到响应中。如果响应慢就需要将延迟时间以 s 为单位，将时间生成在响应中 响应的 Call-ID、CSeq、VIA的顺序必须相同。除了 100，其它响应的 uri 内"><meta property="og:image" content="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg"><meta property="article:published_time" content="2024-01-01T03:25:57.000Z"><meta property="article:modified_time" content="2024-01-28T09:41:48.446Z"><meta name="twitter:card" content="summary"><script>var activateDarkMode = function () {
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#000')
+  }
+}
+var activateLightMode = function () {
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#fff')
+  }
+}
+
+var getCookies = function (name) {
+  const value = `; ${document.cookie}`
+  const parts = value.split(`; ${name}=`)
+  if (parts.length === 2) return parts.pop().split(';').shift()
+}
+
+var autoChangeMode = 'false'
+var t = getCookies('theme')
+if (autoChangeMode === '1') {
+  var isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+  var isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+  var isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined) {
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport) {
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour <= 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+    }
+    window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+      if (Cookies.get('theme') === undefined) {
+        e.matches ? activateDarkMode() : activateLightMode()
+      }
+    })
+  } else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else if (autoChangeMode === '2') {
+  now = new Date()
+  hour = now.getHours()
+  isNight = hour <= 6 || hour >= 18
+  if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else {
+  if (t === 'dark') activateDarkMode()
+  else if (t === 'light') activateLightMode()
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web&amp;display=swap"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  hexoversion: '5.0.2',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime_unit: '天',
+  runtime: false,
+  copyright: undefined,
+  ClickShowText: undefined,
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: undefined,
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  baiduPush: true,
+  highlightCopy: true,
+  highlightLang: true,
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isanchor: false    
+}</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isSidebar: true,
+  postUpdate: '2024-01-28 17:41:48'
+}</script><noscript><style>
+#nav {
+  opacity: 1
+}
+.justified-gallery img {
+  opacity: 1
+}
+</style></noscript><meta name="generator" content="Hexo 5.0.2"><link rel="alternate" href="/atom.xml" title="hpng" type="application/atom+xml">
+</head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" data-lazy-src="/img/100.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">60</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">50</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">21</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 娱乐</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div></div></div></div><div id="body-wrap"><div id="sidebar"><i class="fas fa-arrow-right on" id="toggle-sidebar"></i><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%94%9F%E6%88%90-SIP-%E5%93%8D%E5%BA%94"><span class="toc-number">1.</span> <span class="toc-text">生成 SIP 响应</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8B%E5%8A%A1%E7%9A%84%E8%A7%A3%E8%AF%BB"><span class="toc-number">2.</span> <span class="toc-text">事务的解读</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E4%BA%8B%E5%8A%A1"><span class="toc-number">2.1.</span> <span class="toc-text">客户端事务</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#invite-%E5%AE%A2%E6%88%B7%E7%AB%AF%E4%BA%8B%E5%8A%A1"><span class="toc-number">2.1.1.</span> <span class="toc-text">invite 客户端事务</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9D%9E-INVITE-%E5%AE%A2%E6%88%B7%E7%AB%AF%E4%BA%8B%E5%8A%A1"><span class="toc-number">2.1.2.</span> <span class="toc-text">非 INVITE 客户端事务</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BA%8B%E5%8A%A1"><span class="toc-number">2.2.</span> <span class="toc-text">服务器事务</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#INVITE-%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BA%8B%E5%8A%A1"><span class="toc-number">2.2.1.</span> <span class="toc-text">INVITE 服务器事务</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9D%9E-INVITE-%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BA%8B%E5%8A%A1"><span class="toc-number">2.2.2.</span> <span class="toc-text">非 INVITE 服务器事务</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8B%E5%8A%A1%E7%9A%84%E7%9A%84%E5%8C%B9%E9%85%8D"><span class="toc-number">2.3.</span> <span class="toc-text">事务的的匹配</span></a></li></ol></li></ol></div></div></div><header class="post-bg" id="page-header" style="background-image: url(https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg)"><nav id="nav"><span class="pull-left" id="blog_name"><a class="blog_title" id="site-name" href="/">hpng</a></span><span class="pull-right menus"><div id="search_button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 娱乐</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div></div><span class="toggle-menu close"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">阅读SIP协议观后感</div></div><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-01-01T03:25:57.000Z" title="发表于 2024-01-01 11:25:57">2024-01-01</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-01-28T09:41:48.446Z" title="更新于 2024-01-28 17:41:48">2024-01-28</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/freeswitch/">freeswitch</a></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><p>本文主要记录阅读 SIP rfc3261 文档的一些所思所考，不会对其进行整理分类，并且存在跳跃性</p>
+<h2 id="生成-SIP-响应"><a href="#生成-SIP-响应" class="headerlink" title="生成 SIP 响应"></a>生成 SIP 响应</h2><ul>
+<li>8.2.6</li>
+<li>除了 invite 外需要生成临时响应，其它响应应该立即响应</li>
+<li>生成的临时响应，请求中的时间戳应该直接复制到响应中。如果响应慢就需要将延迟时间以 s 为单位，将时间生成在响应中</li>
+<li>响应的 Call-ID、CSeq、VIA的顺序必须相同。除了 100，其它响应的 uri 内容必须相同，并且需要添加一个 tag，用于 dialog。</li>
+</ul>
+<h2 id="事务的解读"><a href="#事务的解读" class="headerlink" title="事务的解读"></a>事务的解读</h2><p>事务的分为客户端事务与服务器事务，客户端事务发送请求，服务器事务发送响应。</p>
+<p>无状态代理不包含客户端事务或服务器事务。</p>
+<ul>
+<li>200(Ok)的ack作用：主要为了确保 200ok 能够正常发送到 UAC。如果后续不发送 ACK，那么服务端会不断发送，并且在三分钟后断开连接<ul>
+<li>疑问：为啥 200 ok 的 ack 作为自己单独的事务？</li>
+<li>解答：这样设计的原因是保证送达到UAC，并且如果没有回复 ACK，那么 UAS 将会重传</li>
+</ul>
+</li>
+<li>客户端事务：客户端事务的主要负责将接收到的响应传递给 TU, 并过滤重传与不允许的传递。对于 invite 的请求，用于生成 ACK<ul>
+<li>疑问：TU 与客户端事务有什么区别吗</li>
+<li>解答：客户端是TU 与 传输层的中间层</li>
+</ul>
+</li>
+<li>服务器事务：服务器事务的目的是接收来自传输层的请求并将其传递给TU，服务器事务过滤来自网络的任何请求重传。<br>服务器事务接受来自TU的响应，并将它们传递到传输层，以便通过网络进行传输。在INVITE事务的情况下，它会吸收除2xx响应之外的任何最终响应的ACK请求。</li>
+<li>200ok与ack的生成： 都由 UA 核心来处理<ul>
+<li>疑问：前面说客户端事务生成ack,现在又说 UA 核心来处理，不明白</li>
+<li>解释：这里的由核心来处理指的是重传由核心处理。</li>
+</ul>
+</li>
+<li>on-INVITE client transaction：这是没有 ack 的事务。如果需要 ack 的话，需要 tu 直接生成一个 ack?</li>
+</ul>
+<h3 id="客户端事务"><a href="#客户端事务" class="headerlink" title="客户端事务"></a>客户端事务</h3><ul>
+<li>客户端事务状态机： invite 客户端事务与非 invite 客户端事务<ul>
+<li>特点：invite 客户端事务发送延迟长，需要三方握手；非 invite 事务需要立即响应</li>
+<li>注意：如果 TU 希望发送 ACK，它将一个 ACK 直接传递给传输层进行传输</li>
+</ul>
+</li>
+</ul>
+<h4 id="invite-客户端事务"><a href="#invite-客户端事务" class="headerlink" title="invite 客户端事务"></a>invite 客户端事务</h4><p>invite 事务由发送 invite、服务器事务响应、客户端事务响应ack组成。<br>其中 invite 发出后在 t1（默认值：500ms） 重发，除非接受到 1xx 响应，否则就增加两倍的 t1 进行重传。<br>最终，服务器事务发出最终响应，并有客户端事务发送 ack 用于终止重传</p>
+<ul>
+<li>形式描述<ul>
+<li>invite 的客户端事务初始状态为 “Calling”<ul>
+<li>不可靠传输启动定时器 A(t1)，可靠传输不需要启动。事务启动定时器 B(64*t1) 控制事务超时</li>
+<li>超时后重传必须在 “calling” 状态下进行，并且传输时间是 2*t1</li>
+<li>如果定时器 B 触发后任然处于 “calling”, 则通知 TU 超时，并不生成 ack，然后进入 “Terminated” 状态</li>
+</ul>
+</li>
+<li>当接收到临时响应是，状态改为 “Proceeding”。后续的临时响应需要传递给 TU<ul>
+<li>当处于 “Calling” 或 “Proceeding” 状态下，接收到 300-699 响应必须转换为 “Completed”</li>
+<li>接收到服务器事务的响应后，生成 ack 并传输到原始请求发送到的相同的地址、端口和 transport</li>
+<li>当进入 “Completed” 时，启动定时器 D, 对于不可靠传输值至少为 32 秒，可靠传输置为 0。这个值等于服务器事务定时器 H(64*T1)</li>
+<li>新接收到的重新响应不能传递给 TU</li>
+</ul>
+</li>
+<li>定时器 D 在客户端事务处于 “Completed” 状态时触发，客户端事务必须移动到 “Terminated”<ul>
+<li>当处于 “Calling” 或 “Proceeding” 状态下，接收 2xx 响应必须导致客户端事务进入 “Terminated” 状态，并且必须将响应传递到TU</li>
+<li>Proxy 响应 200 为传递给下一跳，客户端事务生成 ack</li>
+<li>客户端事务必须在进入 “Terminated” 状态的瞬间被销毁。</li>
+<li>注意：如何没匹配到合适的客户端事务，则传递到 core</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>ack 的构造<ul>
+<li>Call-ID、From 和 Request-URI 必须和原始请求相同</li>
+<li>To 必须等于被确定的响应中的 To 字段</li>
+<li>ACK 必须包含单一的 Via 报头字段，这个字段必须等于原始的顶部 Via 报头字段</li>
+<li>如果 2xx 中有 Route 字段，则这些也要出现在 ACK 报头中</li>
+<li>注意：invite 响应 415，则可以在 ACK 中放置 body 内容</li>
+</ul>
+</li>
+</ul>
+<h4 id="非-INVITE-客户端事务"><a href="#非-INVITE-客户端事务" class="headerlink" title="非 INVITE 客户端事务"></a>非 INVITE 客户端事务</h4><p>非 INVITE 客户端事务超时 t1 后重传，但是在接受到临时或最终响应后，以 t2 为间隔继续传输消息。</p>
+<blockquote>
+<p>疑问：按照标准文档，按照 t2 继续传输消息，是为了确保交付最后响应。服务器发送了一个请求后，传输在终止？</p>
+</blockquote>
+<p>非 INVITE 客户端事务的 200ok 不会响应 ACK。</p>
+<ul>
+<li>形式描述：<ul>
+<li>发起事务请求，进入 “Trying” 状态<ul>
+<li>启动定时器 F(64<em>T1) 。如果是不可靠传输，客户端事务必须设置定时器 E(T1)，以MIN(2</em>T1,T2)，T2 默认为 4s</li>
+<li>如果定时器 F 触发，仍处于 “Trying”，通知 TU 超时，然后进入 “Terminated” 状态</li>
+<li>如果在 “Trying” 状态下收到最终响应(200-699)，则传递给 TU，事务转换为 “Completed” 状态</li>
+</ul>
+</li>
+<li>当在 “Trying” 状态下收到临时响应，则转为 “Proceeding” 状态<ul>
+<li>如果定时器 E 在 “Proceeding” 状态下被触发，请求需要被重传，定时器 E 重置为 T2 秒</li>
+<li>如果定时器 F 在 “Proceeding” 状态下被触发，通知 TU 超时，然后进入 “Terminated” 状态</li>
+<li>如果在 “Proceeding” 状态下收到最终响应(200-699)，则传递给 TU，事务转换为 “Completed” 状态</li>
+</ul>
+</li>
+<li>当进入 “Completed” 时，启动定时器 K, 对于不可靠传输值 T4 秒，可靠传输置为 0。<ul>
+<li>T4表示网络清除客户机和服务器事务之间的消息所需的时间。缺省值为5s</li>
+<li>如果定时器 K 在此状态下触发，客户端事务必须转换到 “Terminated” 状态。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>匹配响应给对应客户端事务<ul>
+<li>响应消息的 Via 头字段的 Branch 参数相同，则匹配</li>
+<li>CSeq报头字段中的方法参数与创建事务的请求的方法匹配。用于 CANCEL，CANCEL 会新生成一个事务</li>
+</ul>
+</li>
+<li>异常处理<ul>
+<li>当传输发送错误时，立即想 TU 响应错误，并直接切换到 “Terminated” 状态</li>
+</ul>
+</li>
+</ul>
+<h3 id="服务器事务"><a href="#服务器事务" class="headerlink" title="服务器事务"></a>服务器事务</h3><p>服务器事务是在接收到请求时由核心创建。</p>
+<h4 id="INVITE-服务器事务"><a href="#INVITE-服务器事务" class="headerlink" title="INVITE 服务器事务"></a>INVITE 服务器事务</h4><ul>
+<li><p>形式描述：</p>
+<ul>
+<li><p>Proceeding 收到重传请求，那么需要获取 TU 给的最新的 trying 进行重传</p>
+<ul>
+<li>Proceeding 状态下 TU 向服务器事务传递 2xx 响应，服务器事务必须传出去，当然重传由 TU 负责，服务器事务状态转为 Terminated</li>
+<li>Proceeding 状态下 TU 向服务器事务传递 300-699，必须传出去，服务器事务状态转为 Completed。不可靠传输定时器 G(T1) 触发，可靠传输，定时器不触发。</li>
+</ul>
+</li>
+<li><p>Completed 进入后，定时器 H(64*T1) 必须启动，此定时器决定了重传超时时间。</p>
+<ul>
+<li>如果定时器 G 触发，则将继续重传，定时器 G 时间为  MIN(2*T1, T2)</li>
+<li>Completed 状态下，接收到重传请求应该进行重传</li>
+<li>Completed 状态下，收到了 ACK，则转为 Confirmed。并且定时器 G 被忽略，任何重传都会停止</li>
+<li>Completed 状态下，定时器 H 被激活，则服务器事务转为 Terminated 状态，并通知 TU 事务失败。</li>
+</ul>
+</li>
+<li><p>Confirmed 主要用于吸收多余的 ACK。</p>
+<ul>
+<li>当进入该状态时，定时器 I 在 T4 秒内触发，对于不可靠的传输，定时器 I 为 0 秒。</li>
+<li>一旦定时器触发，则转为 Terminated 状态</li>
+</ul>
+</li>
+<li><p>一旦事务处于“终止”状态，它必须立即销毁。与客户端事务一样，这需要确保对INVITE的2xx响应的可靠性。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="非-INVITE-服务器事务"><a href="#非-INVITE-服务器事务" class="headerlink" title="非 INVITE 服务器事务"></a>非 INVITE 服务器事务</h4><ul>
+<li>形式描述：<ul>
+<li>Trying 状态下，初始化走这个状态并且任何重传都将丢弃<ul>
+<li>TU 向服务器事务传输响应，则转为 Proceeding 状态</li>
+</ul>
+</li>
+<li>Proceeding 状态下，所有 TU 传输过来的内容，都需要全部通过传输层传输出去<ul>
+<li>Proceeding 接收到请求的重传，则必须将最新发送临时响应重传出去</li>
+<li>Proceeding 状态下，TU 向服务器事务传递最终响应(200-699), 则事务必须进入 Completed 状态</li>
+</ul>
+</li>
+<li>Completed 状态必须启动定时器 J（64*T1），不可靠为 0 秒<ul>
+<li>TU 传递给服务器事务的任何其他最终响应必须在处于 Completed 状态时丢弃</li>
+<li>服务器事务保持这个状态，直到定时器 J 触发，转为 Terminated 状态</li>
+</ul>
+</li>
+<li>服务器事务必须在进入 Terminated 状态的瞬间被销毁。</li>
+</ul>
+</li>
+</ul>
+<h3 id="事务的的匹配"><a href="#事务的的匹配" class="headerlink" title="事务的的匹配"></a>事务的的匹配</h3><p>在 VIA 中有 z9hG4bK 字符，通过魔法字符进行匹配。没有就采用 Request-URI, To tag, From tag, Call-ID, CSeq, and top Via header<br>匹配对应的 事务。</p>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">hpng</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://nikohpng.github.io/2024/01/01/freeswitch/%E9%98%85%E8%AF%BBSIP%E5%8D%8F%E8%AE%AE%E8%A7%82%E5%90%8E%E6%84%9F/">http://nikohpng.github.io/2024/01/01/freeswitch/%E9%98%85%E8%AF%BBSIP%E5%8D%8F%E8%AE%AE%E8%A7%82%E5%90%8E%E6%84%9F/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://nikohpng.github.io" target="_blank">hpng</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/sip/">sip</a></div><div class="post_share"><div class="social-share" data-image="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2023/12/24/freeswitch/Sip%E5%8D%8F%E8%AE%AE%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E6%A6%82%E5%BF%B5/"><img class="next-cover" data-lazy-src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Sip协议中的一些概念</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></article></main><footer id="footer" data-type="color"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2024 By hpng</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a><br>
+<img src="https://www.hepng.cool/images/beian.png">
+<a href="http://beian.miit.gov.cn/"  style="color:#f72b07" target="_blank">蜀ICP备20025047号</a></div></div></footer></div><section id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font_plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font_minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="translateLink" type="button" title="简繁转换">繁</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>Powered by</span> <a target="_blank" rel="noopener" href="https://github.com/wzpan/hexo-generator-search" style="color:#49B1F5;">hexo-generator-search</a></div></div></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div><div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module" defer></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js" async></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>function addGitalkSource () {
+  const ele = document.createElement('link')
+  ele.rel = 'stylesheet'
+  ele.href= 'https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css'
+  document.getElementsByTagName('head')[0].appendChild(ele)
+}
+
+function loadGitalk () {
+  function initGitalk () {
+    var gitalk = new Gitalk({
+      clientID: '1ea5a82e92883adabd34',
+      clientSecret: 'deebfffe650e98014107cef0d37b8ca4c3fe733a',
+      repo: 'nikohpng.github.io',
+      owner: 'nikohpng',
+      admin: ['nikohpng'],
+      id: 'b56f4f13f04a749f75763ecef1867670',
+      language: 'zh-CN',
+      perPage: 10,
+      distractionFreeMode: false,
+      pagerDirection: 'last',
+      createIssueManually: true,
+      updateCountCallback: commentCount
+    })
+    gitalk.render('gitalk-container')
+  }
+
+  if (typeof Gitalk === 'function') initGitalk()
+  else {
+    addGitalkSource()
+    $.getScript('https://cdn.jsdelivr.net/npm/gitalk@latest/dist/gitalk.min.js', initGitalk)
+  }
+}
+
+function commentCount(n){
+  let isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+  if (isCommentCount) {
+    isCommentCount.innerHTML= n
+  }
+}
+
+if ('Gitalk' === 'Gitalk' || !true) {
+  if (true) loadComment(document.getElementById('gitalk-container'), loadGitalk)
+  else loadGitalk()
+} else {
+  function loadOtherComment () {
+    loadGitalk()
+  }
+}</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></div></body></html>
