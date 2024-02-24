@@ -128,13 +128,17 @@ gclient sync
 
 > 注意：在这个过程中，必须一直保持代理打开着并保持连接
 
+> Error: failed to parse desired state (line 2): unknown $setting: "$OverrideInstallMode".
+
+解决方案：将 ` ./src/third_party/depot_tools/gclient_scm.py` 文件中的 `$OverrideInstallMode` 注释掉，就不会出现问题。具体原因暂时不明！
+
 ## 生成 vs 的解决方案
 
 生成解决方案的时候，采用如下命令：
 
 ```
 cd src
-gn gen --ide=vs2017 out/Default
+gn gen --ide=vs2017 out/Default -v
 ```
 
 ### 生成解决方案遇到的问题
@@ -164,6 +168,33 @@ E:\workspace\webrtc\source\src\buildtools\win\gn.exe
 可以下载 SDK 安装的软件，安装我们需要的版本 `https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk/`
 
 > 注意：将你新下载的内容拷贝到 C 盘中哦！
+
+### 编译失败
+
+按照 [libwebrtc](http://66.42.39.54:13280/root/libwebrtc) 中所说，将源码拷贝到 src 目录下面，然后执行如下命令:
+
+```shell
+cd src
+ninja -d explain -C out/Default libwebrtc
+```
+
+> 编译时可能会出现 clang 的相关错误，原因是 src\third_party\llvm-build 此文件没有。
+
+解决方案：直接前往内网 svn 获取 [llvm-build](svn://10.10.0.1/svnrepos/联通/WebRTC/Dependency/M92/Win/llvm-build.zip)即可。
+
+> 编译代码时可能出现缺少 LASTCHANGE 和 LASTCHANGE.committime 文件
+
+解决方案：直接前往内网 svn 获取 [LASTCHANGE 和 LASTCHANGE.committime](svn://10.10.0.1/svnrepos/%E8%81%94%E9%80%9A/WebRTC/Dependency/M92/Win)即可。
+
+> 编译 webrtc.lib 出现没有 cursor_unittest_resources.res 文件。只有 webrtc.lib 才会出现，libwebrtc.lib 不会出现，可忽略
+
+出现此问题目前猜测是资源文件没有下载完全导致的，我此次搭建的项目是从同事那里拷贝过来的，可能下载出现了一些问题。具体原因没去仔细研究。
+
+此次项目主要用于编译 Lib 库文件用于开发，不需要生成测试用例，因而解决方式如下，重新生成没有测试用例的解决方案：
+
+```
+gn gen --ide=vs out/Default --args="rtc_include_tests=false rtc_build_examples=false"
+```
 
 ## 引用
 
