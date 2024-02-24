@@ -6,7 +6,7 @@
   <link href="http://nikohpng.github.io/atom.xml" rel="self"/>
   
   <link href="http://nikohpng.github.io/"/>
-  <updated>2024-01-28T09:41:48.446Z</updated>
+  <updated>2024-02-24T03:05:28.956Z</updated>
   <id>http://nikohpng.github.io/</id>
   
   <author>
@@ -15,6 +15,30 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>待到山花烂漫时</title>
+    <link href="http://nikohpng.github.io/2024/02/24/memory/%E5%BE%85%E5%88%B0%E5%B1%B1%E8%8A%B1%E7%83%82%E6%BC%AB%E6%97%B6/"/>
+    <id>http://nikohpng.github.io/2024/02/24/memory/%E5%BE%85%E5%88%B0%E5%B1%B1%E8%8A%B1%E7%83%82%E6%BC%AB%E6%97%B6/</id>
+    <published>2024-02-24T02:48:55.000Z</published>
+    <updated>2024-02-24T03:05:28.956Z</updated>
+    
+    <content type="html"><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="\assets\js\Meting.min.js"></script><center style="font-weight: 800">卜算子.咏梅</center><center>风雨送春归，飞雪迎春到。</center><center>已是悬崖百丈冰，犹有花枝俏。</center><center>俏也不争春，只把春来报。</center><center>待到山花烂漫时，她在丛中笑。</center><br/><br/><br/><p><img src= "/img/loading.gif" data-lazy-src="../../../../../../images/memory/bloom.jpg" alt="bloom"></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;\assets\css\APlayer.min.css&quot;&gt;&lt;script src=&quot;\assets\js\APlayer.min.js&quot; cla</summary>
+      
+    
+    
+    
+    <category term="Memory" scheme="http://nikohpng.github.io/categories/Memory/"/>
+    
+    
+    <category term="hz" scheme="http://nikohpng.github.io/tags/hz/"/>
+    
+  </entry>
   
   <entry>
     <title>阅读SIP协议观后感</title>
@@ -469,30 +493,6 @@
     
     
     <category term="janus-admin" scheme="http://nikohpng.github.io/tags/janus-admin/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>FFmpeg在Win编译并运行</title>
-    <link href="http://nikohpng.github.io/2022/04/04/ffmpeg/setting_make/FFmpeg%E5%9C%A8Win%E7%BC%96%E8%AF%91%E5%B9%B6%E8%BF%90%E8%A1%8C/"/>
-    <id>http://nikohpng.github.io/2022/04/04/ffmpeg/setting_make/FFmpeg%E5%9C%A8Win%E7%BC%96%E8%AF%91%E5%B9%B6%E8%BF%90%E8%A1%8C/</id>
-    <published>2022-04-04T07:27:05.000Z</published>
-    <updated>2022-04-04T08:31:09.292Z</updated>
-    
-    <content type="html"><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="\assets\js\Meting.min.js"></script><p>本人选择编译的 FFmpeg 不是在 Linux 环境下面，也不是在 Win 环境下面的模拟 Linux 环境（例如：mgwin、cygwin）。</p><p>使用 vs 搭建 FFmpeg，其主要目的是为了方便调试与学习。本人较为喜欢 vs 的调试。</p><p>采用的 <a href="https://github.com/ShiftMediaProject/FFmpeg">FFmpeg</a> 是专门为 Win 环境做了适配。</p><h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><table><thead><tr><th>环境名</th><th>版本</th></tr></thead><tbody><tr><td>WIN</td><td>WIN10</td></tr><tr><td>VS</td><td>vs2017</td></tr></tbody></table><h2 id="基础的搭建"><a href="#基础的搭建" class="headerlink" title="基础的搭建"></a>基础的搭建</h2><p>关于最基本的搭建内容有很多文章都有关于这方面的叙述，此处我将只会叙述一个大概主要的安装流程。</p><p>至于其中更详细内容可以参考下面的引用</p><ul><li>第一步：创建文件夹目录，目录结构如下所示  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">- msvc (OutputDir)　　　　　　　　　　　　　 　　</span><br><span class="line">- source　　　　　　　　　　　　　　　　　 　　　</span><br><span class="line">　　- FFmpeg 　　　　　　　　　　　　　　　　　　</span><br><span class="line">　　- ..Any other libraries source code..</span><br></pre></td></tr></table></figure></li><li>第二步：使用 FFmpeg 项目目录下面的 project_get_dependencies.bat 脚本运行并获取依赖项目。<blockquote><p>注意：此处由于国内的原因，可以采用代理或者直接网上下载的方式获取，建议采用脚本，方便更新</p></blockquote></li><li>第三步：下载额外依赖的头文件到 msvc 的 include 的目录中<ul><li><a href="https://www.khronos.org/registry/OpenGL/api/GL/">下载</a> opengl 的 glext.h 和 wglext.h  到  “ msvc/include/gl/* “</li><li><a href="https://www.khronos.org/registry/EGL/api/KHR/">下载</a> opengl 的 khrplatform.h 到 “ msvc/include/KHR/* “</li><li><a href="https://github.com/FFmpeg/nv-codec-headers">下载</a>  nv-codec-headers 项目的 “include” 文件夹下的内容到  “ msvc/include/* “</li><li><a href="https://github.com/GPUOpen-LibrariesAndSDKs/AMF">下载</a> AMF 项目的  “amf/public/include” 文件夹下的内容到  “ msvc/include/AMF/* “</li></ul></li><li>第四步：安装 <a href="https://github.com/ShiftMediaProject/VSNASM/releases/latest">nasm</a> 与 <a href="https://github.com/ShiftMediaProject/VSYASM/releases">yasm</a><br>。将内容下载到本地后解压到 msvc 目录并分别使用管理员权限执行其中的 install_script.bat 脚本</li><li>第五步：使用 visual studio 打开 <strong>FFmpeg/SMP/ffmpeg_desp.sln</strong> 项目文件</li></ul><p>以上是编译时候的主要步骤，下面是在此过程中所遇到的问题以及解决方案</p><h2 id="问题与解决"><a href="#问题与解决" class="headerlink" title="问题与解决"></a>问题与解决</h2><ul><li><p>关于依赖的缺失：我这边由于是新项目，网络上的很多描述没涉及到其中缺失的一些项目。</p><blockquote><p>解决方案：在 ShiftMediaProject 这个 github 账号里面将缺失的项目都下载或者克隆到 source 目录下面，然后重启 vs 即可</p></blockquote></li><li><p>关于 h264 与 h265 项目无法编译：在保证 yasm 与 nasm 正确的情况下，仍然无法编译，编译器一直提示缺少 win sdk8.1</p><blockquote><p>解决方案：通过 vs intall 下载安装好 sdk8.1 的内容</p></blockquote></li><li><p>关于新项目无法加载 uwp 结尾的项目问题：此问题是本地项目中没有安装 uwp 的库</p><blockquote><p>解决方案：同样可以通过安装 uwp 的内容解决，实际情况以个人开发者的环境为准</p></blockquote></li><li><p>关于一些项目缺失某些头文件：注意查看情况，缺失头文件一般有两种情况。一种是这个项目的依赖项目编译失败，查看方式就是去 msvc/include 下面看是否有这个依赖项目的头文件<br>；第二种情况是这个项目依赖的 submodule 没有下载成功（例如：gnulib），查看方式是报错的时候会指向具体的某个编译的项目。</p><blockquote><p>解决方案：如果是 submodule ，那么可以使用 <code>git submodule update</code> 来获取子项目，一直获取失败的话可以直接下载后拷贝进去。如果是<br>项目缺失的直接按照第一条的解决方式即可解决 </p></blockquote></li></ul><p>最后，总结下。如果缺失某些头文件，请仔细思考是否是该项目的依赖项目编译失败。直接单独编译该项目或指明的依赖项目就可以准确定位了。</p><h2 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h2><p><a href="https://www.cnblogs.com/BensonLaur/p/10989115.html">使用 VS2015 编译并调试 ffmpeg</a></p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;\assets\css\APlayer.min.css&quot;&gt;&lt;script src=&quot;\assets\js\APlayer.min.js&quot; cla</summary>
-      
-    
-    
-    
-    <category term="FFmpeg" scheme="http://nikohpng.github.io/categories/FFmpeg/"/>
-    
-    
-    <category term="make" scheme="http://nikohpng.github.io/tags/make/"/>
     
   </entry>
   
