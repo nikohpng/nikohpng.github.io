@@ -6,7 +6,7 @@
   <link href="http://nikohpng.github.io/atom.xml" rel="self"/>
   
   <link href="http://nikohpng.github.io/"/>
-  <updated>2024-03-14T12:11:21.122Z</updated>
+  <updated>2024-03-17T11:51:25.994Z</updated>
   <id>http://nikohpng.github.io/</id>
   
   <author>
@@ -15,6 +15,30 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>除却巫山不是云</title>
+    <link href="http://nikohpng.github.io/2024/03/17/memory/%E9%99%A4%E5%8D%B4%E5%B7%AB%E5%B1%B1%E4%B8%8D%E6%98%AF%E4%BA%91/"/>
+    <id>http://nikohpng.github.io/2024/03/17/memory/%E9%99%A4%E5%8D%B4%E5%B7%AB%E5%B1%B1%E4%B8%8D%E6%98%AF%E4%BA%91/</id>
+    <published>2024-03-17T11:43:32.000Z</published>
+    <updated>2024-03-17T11:51:25.994Z</updated>
+    
+    <content type="html"><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="\assets\js\Meting.min.js"></script><center style="font-weight: 800">离思</center><center style="font-weight:200">元稹</center><center>曾经沧海难为水，除却巫山不是云。</center><center>取次花丛懒回顾，半缘修道半缘君。</center><br/><br/><br/><p><img src= "/img/loading.gif" data-lazy-src="../../../../../../images/memory/family.jpg" alt="bloom"></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;\assets\css\APlayer.min.css&quot;&gt;&lt;script src=&quot;\assets\js\APlayer.min.js&quot; cla</summary>
+      
+    
+    
+    
+    <category term="Memory" scheme="http://nikohpng.github.io/categories/Memory/"/>
+    
+    
+    <category term="hz" scheme="http://nikohpng.github.io/tags/hz/"/>
+    
+  </entry>
   
   <entry>
     <title>欲得周郎顾时时误抚琴</title>
@@ -469,30 +493,6 @@
     
     
     <category term="mod" scheme="http://nikohpng.github.io/tags/mod/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>opus编解码相关介绍</title>
-    <link href="http://nikohpng.github.io/2023/03/21/codec/opus%E7%BC%96%E8%A7%A3%E7%A0%81%E7%9B%B8%E5%85%B3%E4%BB%8B%E7%BB%8D/"/>
-    <id>http://nikohpng.github.io/2023/03/21/codec/opus%E7%BC%96%E8%A7%A3%E7%A0%81%E7%9B%B8%E5%85%B3%E4%BB%8B%E7%BB%8D/</id>
-    <published>2023-03-21T13:04:00.000Z</published>
-    <updated>2023-03-22T13:16:32.861Z</updated>
-    
-    <content type="html"><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="\assets\css\APlayer.min.css"><script src="\assets\js\APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="\assets\js\Meting.min.js"></script><p>本文主要讲解在实际开发中遇到的关于Opus的编解码问题</p><h2 id="SDP中OPUS介绍"><a href="#SDP中OPUS介绍" class="headerlink" title="SDP中OPUS介绍"></a>SDP中OPUS介绍</h2><p>在 SDP 中，任何其它采样率都不起作用，在 rtp 传输时默认采用 48000, 可以在 <a href="https://www.rfc-editor.org/rfc/rfc7587">rfc7587 Section 4.1</a> 中查看<br>如下所示：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Opus supports 5 different audio bandwidths, which can be adjusted</span><br><span class="line">during a stream.  The RTP timestamp is incremented with a 48000 Hz</span><br><span class="line">clock rate for all modes of Opus and all sampling rates.  The unit</span><br><span class="line">for the timestamp is samples per single (mono) channel.  The RTP</span><br><span class="line">timestamp corresponds to the sample time of the first encoded sample</span><br><span class="line">in the encoded frame.  For data encoded with sampling rates other</span><br><span class="line">than 48000 Hz, the sampling rate has to be adjusted to 48000 Hz.</span><br></pre></td></tr></table></figure><p>如果想要降低带宽，那么可以使用 <code>maxplaybackrate</code> 和 <code>maxaveragebitrate </code>，标准文档如下所示</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">3.1.1.  Recommended Bitrate</span><br><span class="line"></span><br><span class="line">   For a frame size of 20 ms, these are the bitrate &quot;sweet spots&quot; for  Opus in various configurations:</span><br><span class="line"></span><br><span class="line">   o  8-12 kbit&#x2F;s for NB speech,</span><br><span class="line">   o  16-20 kbit&#x2F;s for WB speech,</span><br><span class="line">   o  28-40 kbit&#x2F;s for FB speech,</span><br><span class="line">   o  48-64 kbit&#x2F;s for FB mono music, and</span><br><span class="line">   o  64-128 kbit&#x2F;s for FB stereo music.</span><br></pre></td></tr></table></figure><p>例如：如果想要使用 8000HZ 的 OPUS，那么 SDP 应该如下所示：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">m&#x3D;audio 54312 RTP&#x2F;AVP 101</span><br><span class="line">a&#x3D;rtpmap:101 opus&#x2F;48000&#x2F;2</span><br><span class="line">a&#x3D;fmtp:101 maxplaybackrate&#x3D;8000; sprop-maxcapturerate&#x3D;8000; maxaveragebitrate&#x3D;12000</span><br></pre></td></tr></table></figure><h2 id="WebRTC-中非对称采样率工作"><a href="#WebRTC-中非对称采样率工作" class="headerlink" title="WebRTC 中非对称采样率工作"></a>WebRTC 中非对称采样率工作</h2><p>WebRTC 支持通信双方以非对称采样率工作。比如：A和B通话，A的采样率为48000，B的采样率为8000。如下所示</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">A--&gt;B OfferSDP</span><br><span class="line">a&#x3D;rtpmap:111 opus&#x2F;48000&#x2F;2</span><br><span class="line">a&#x3D;rtcp-fb:111 transport-cc</span><br><span class="line">a&#x3D;fmtp:111 minptime&#x3D;10;useinbandfec&#x3D;1;maxplaybackrate&#x3D;16000</span><br></pre></td></tr></table></figure><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">B--&gt;A AnswerSDP</span><br><span class="line">a&#x3D;rtpmap:111 opus&#x2F;48000&#x2F;2</span><br><span class="line">a&#x3D;rtcp-fb:111 transport-cc</span><br><span class="line">a&#x3D;fmtp:111 minptime&#x3D;10;useinbandfec&#x3D;1;maxplaybackrate&#x3D;48000</span><br></pre></td></tr></table></figure><p>最终，A 采样率为48000，B 采用率为 16000</p><h2 id="WebRTC-中声道数与编码器的关系"><a href="#WebRTC-中声道数与编码器的关系" class="headerlink" title="WebRTC 中声道数与编码器的关系"></a>WebRTC 中声道数与编码器的关系</h2><p>当声道数 2 时，OPUS 编码内部将使用 celt ,代码如下：</p><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">///FIXME 暂时未查阅到</span></span><br><span class="line">config.application = config.num_channels == <span class="number">1</span> ? AudioEncoderOpus::kVoip : AudioEncoderOpus::kAudio;</span><br></pre></td></tr></table></figure><h2 id="OPUS编解码"><a href="#OPUS编解码" class="headerlink" title="OPUS编解码"></a>OPUS编解码</h2><p>OPUS代码的时候使用 <a href="https://github.com/xiph/opus">opus</a> 进行编解码，可以使用 <code>opus/doc/trivial_example.c</code> 进行测试</p><h2 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h2><p><a href="https://stackoverflow.com/questions/60580526/linphone-opus-codec-sampling-rate">Linphone opus codec sampling rate</a></p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;\assets\css\APlayer.min.css&quot;&gt;&lt;script src=&quot;\assets\js\APlayer.min.js&quot; cla</summary>
-      
-    
-    
-    
-    <category term="codec" scheme="http://nikohpng.github.io/categories/codec/"/>
-    
-    
-    <category term="opus" scheme="http://nikohpng.github.io/tags/opus/"/>
     
   </entry>
   
